@@ -4,6 +4,33 @@ A file-based project management framework for Claude Code sessions.
 Manages context, state, and decisions across sessions so each new conversation
 picks up exactly where the last one left off.
 
+### Why this exists
+
+Claude Code sessions are stateless — every new conversation starts from scratch.
+On small tasks that's fine, but on real projects you lose track of what was decided,
+what's in progress, and what to do next. This framework fixes that by giving Claude
+a persistent memory layer built on plain Markdown files.
+
+### When to use it
+
+- **Multi-day projects** — anything that takes more than a single session to complete
+- **Solo developers** who want structured progress tracking without heavyweight tools
+- **Small teams** sharing a codebase, where each developer needs their own handover notes without merge conflicts
+- **Projects with important design decisions** that need to be recorded with context and rationale (ADRs)
+- **Complex refactors or migrations** where losing track of the current phase means wasted effort
+
+### What you get
+
+- **Session continuity** — `/moin` loads your state and handover notes; `/ciao` writes them back. Every session resumes where the last one ended.
+- **Selective context loading** — only the current phase and relevant files are loaded, keeping Claude's context window lean (~20 KB) instead of dumping everything at once.
+- **Structured state tracking** — a single `STATE.md` file is the source of truth for phase, next actions, open decisions, and blockers.
+- **Decision records on the fly** — `/decision` captures what was decided and why, with sequential numbering and validation. No more "why did we do it this way?" three weeks later.
+- **Per-developer handovers** — each developer owns their own handover file. No coordination, no merge conflicts.
+- **Automatic validation** — hooks check STATE.md structure, decision record format, and template integrity after every write. Errors are caught immediately, not in the next session.
+- **Self-healing setup** — `/moin` syncs the latest commands and hooks from the template on every session start. Updates are automatic.
+- **Built-in diagnostics** — `/healthcheck` runs 12 environment checks and tells you exactly what's broken and how to fix it.
+- **Safe by default** — state backups before every update, archive of completed actions, and guards against accidental hardcoded paths in templates.
+
 ---
 
 ## Getting Started
