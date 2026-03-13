@@ -1,3 +1,8 @@
+<!-- BOOTSTRAP COPY: This file exists so /onboard is available when
+     Claude Code is first opened in the planning repo.
+     Canonical version: claude-backup/commands/onboard.md — keep in sync.
+     /moin does NOT touch this file (it syncs to the project repo only). -->
+
 # Developer Onboarding & Environment Setup
 
 > **Trigger rule**: Only run this command when the user explicitly invokes it via `/onboard`. Do NOT trigger from conversational mentions of "onboard", "onboarding", "set up environment", "get started", or similar phrasing.

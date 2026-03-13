@@ -58,7 +58,7 @@ Copy (or clone) this template as your planning repo. Keep the directory structur
 
 ### Step 2 — Onboard (`/onboard`)
 
-Open Claude Code **in your project repo** (e.g., `MyProject/`), then type:
+Open Claude Code **in the planning repo** (e.g., `MyProject-planning/`), then type:
 
 ```
 /onboard
@@ -71,13 +71,13 @@ The wizard asks three questions:
 
 It then configures everything automatically:
 - Sets up `.claude/CLAUDE.md` with your identity and paths
-- Deploys all commands and hooks from the planning template to `.claude/`
+- Deploys all commands and hooks from the planning template to your **project repo's** `.claude/`
 - Replaces `${PROJECT_REPO}` / `${PLANNING_REPO}` variables with your literal paths
 - Creates your personal handover file
 
 ### Step 3 — Bootstrap the project (`/initial-planning`)
 
-Still in Claude Code, run:
+Close the onboarding session. Open Claude Code **in your project repo** (e.g., `MyProject/`), then run:
 
 ```
 /initial-planning
@@ -127,13 +127,14 @@ This loads your project state, syncs the latest template updates, presents a bri
 ### The lifecycle at a glance
 
 ```
-/onboard → /initial-planning → /moin → work → /ciao
-                                  ↑                |
-                                  └────────────────┘
-                                     (next session)
+(planning repo)  /onboard  →  (project repo)  /initial-planning → /moin → work → /ciao
+                                                        ↑                |
+                                                        └────────────────┘
+                                                           (next session)
 ```
 
-One-time setup is `/onboard` + `/initial-planning`. The daily cycle is `/moin` → work → `/ciao`.
+One-time setup is `/onboard` (from planning repo) then `/initial-planning` (from project repo).
+The daily cycle is `/moin` → work → `/ciao`, always from the project repo.
 
 ---
 
@@ -148,10 +149,10 @@ by writing state back.
 ```mermaid
 flowchart TD
     subgraph First Time
-        ON["/onboard"]
+        ON["/onboard<br/>(in planning repo)"]
         ON -->|asks| Q1["Developer name?<br/>Repo paths?"]
-        Q1 -->|configures| CF[".claude/CLAUDE.md<br/>command files<br/>handover file"]
-        CF --> IP["/initial-planning"]
+        Q1 -->|deploys to project repo| CF[".claude/CLAUDE.md<br/>command files<br/>handover file"]
+        CF -->|switch to project repo| IP["/initial-planning"]
         IP -->|creates| PF["STATE.md<br/>PLAN.md<br/>plan files"]
         PF --> READY["Project ready"]
     end
