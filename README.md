@@ -114,7 +114,7 @@ The framework manages context across Claude Code sessions using a file-based
 state machine. Each session starts by reading state, works on tasks, and ends
 by writing state back.
 
-:::mermaid
+```mermaid
 flowchart TD
     subgraph First Time
         ON["/onboard"]
@@ -166,7 +166,7 @@ flowchart TD
     END -.->|next day| MOIN
     END -.->|days later| RECAP
     CATCHUP -.-> WORK
-:::
+```
 
 ### Key Concepts
 
