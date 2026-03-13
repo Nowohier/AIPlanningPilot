@@ -1,3 +1,7 @@
+
+![License](https://img.shields.io/github/license/Nowohier/AIPlanningPilot)
+![GitHub stars](https://img.shields.io/github/stars/Nowohier/AIPlanningPilot)
+
 # AI-Assisted Project Management Framework
 
 A file-based project management framework for Claude Code sessions.
