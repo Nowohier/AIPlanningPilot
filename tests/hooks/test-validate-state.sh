@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+# test-validate-state.sh — Tests for validate-state.sh hook
+#
+# Tests the PostToolUse hook that validates STATE.md schema after /ciao writes it.
+# Covers: section detection, phase header, action items, date validation, path filtering.
+
+source "$(dirname "$0")/test-helper.sh"
+setup_test_env
+
+HOOK="validate-state.sh"
+
+# ============================================================================
+printf "${CYAN}${BOLD}validate-state.sh${RESET}\n"
+printf "${CYAN}──────────────────────────────────────${RESET}\n"
+# ============================================================================
+
+# --- Filtering tests (hook should ignore non-matching files) ---
+
+printf "\n${YELLOW}Filtering${RESET}\n"
+
+begin_test "ignores non-STATE.md files"
+run_hook "$HOOK" "$(make_tool_input '/some/path/README.md')"
+assert_exit_code 0
+assert_silent "should be silent for non-STATE files"
+
+begin_test "ignores STATE.md outside main/"
+run_hook "$HOOK" "$(make_tool_input '/some/path/STATE.md')"
+assert_exit_code 0
+assert_silent "should be silent for STATE.md in wrong location"
+
+begin_test "ignores STATE.md in wrong subdirectory"
+run_hook "$HOOK" "$(make_tool_input '/repo/other/STATE.md')"
+assert_exit_code 0
+assert_silent "should be silent for STATE.md not in main/"
+
+begin_test "triggers for correct main/STATE.md path"
+prepare_fixture "state-valid.md" "${TEST_PLANNING_DIR}/main/STATE.md"
+run_hook "$HOOK" "$(make_tool_input "${TEST_PLANNING_DIR}/main/STATE.md")"
+assert_exit_code 0 "should exit 0 (advisory, never blocks)"
+
+# --- Valid STATE.md ---
+
+printf "\n${YELLOW}Valid STATE.md${RESET}\n"
+
+begin_test "valid STATE.md produces no errors"
+prepare_fixture "state-valid.md" "${TEST_PLANNING_DIR}/main/STATE.md"
+run_hook "$HOOK" "$(make_tool_input "${TEST_PLANNING_DIR}/main/STATE.md")"
+assert_exit_code 0
+assert_stderr_not_contains "Missing required section" "should have no missing section errors"
+assert_stderr_not_contains "ERRORS" "should report no errors"
+
+# --- Missing sections ---
+
+printf "\n${YELLOW}Missing sections${RESET}\n"
+
+begin_test "detects missing Decisions Made section"
+prepare_fixture "state-missing-sections.md" "${TEST_PLANNING_DIR}/main/STATE.md"
+run_hook "$HOOK" "$(make_tool_input "${TEST_PLANNING_DIR}/main/STATE.md")"
+assert_exit_code 0 "should still exit 0 (advisory)"
+assert_stderr_contains "Decisions Made" "should report missing Decisions Made"
+
+begin_test "detects missing Open Decisions section"
+prepare_fixture "state-missing-sections.md" "${TEST_PLANNING_DIR}/main/STATE.md"
+run_hook "$HOOK" "$(make_tool_input "${TEST_PLANNING_DIR}/main/STATE.md")"
+assert_stderr_contains "Open Decisions" "should report missing Open Decisions"
+
+# --- Empty actions ---
+
+printf "\n${YELLOW}Empty actions${RESET}\n"
+
+begin_test "warns when Next Actions has no items"
+prepare_fixture "state-empty-actions.md" "${TEST_PLANNING_DIR}/main/STATE.md"
+run_hook "$HOOK" "$(make_tool_input "${TEST_PLANNING_DIR}/main/STATE.md")"
+assert_exit_code 0
+assert_stderr_contains "empty" "should warn about empty actions"
+
+# --- Date validation ---
+
+printf "\n${YELLOW}Date validation${RESET}\n"
+
+begin_test "warns when Last Updated date is missing"
+prepare_fixture "state-no-date.md" "${TEST_PLANNING_DIR}/main/STATE.md"
+run_hook "$HOOK" "$(make_tool_input "${TEST_PLANNING_DIR}/main/STATE.md")"
+assert_exit_code 0
+assert_stderr_contains "Last Updated" "should warn about missing date"
+
+begin_test "warns when Last Updated date is stale (>3 days)"
+prepare_fixture "state-stale-date.md" "${TEST_PLANNING_DIR}/main/STATE.md"
+run_hook "$HOOK" "$(make_tool_input "${TEST_PLANNING_DIR}/main/STATE.md")"
+assert_exit_code 0
+assert_stderr_contains "days ago" "should warn about stale date"
+
+begin_test "no date warning when date is today"
+prepare_fixture "state-valid.md" "${TEST_PLANNING_DIR}/main/STATE.md"
+run_hook "$HOOK" "$(make_tool_input "${TEST_PLANNING_DIR}/main/STATE.md")"
+assert_stderr_not_contains "days ago" "should not warn about today's date"
+
+# --- Phase header ---
+
+printf "\n${YELLOW}Phase header${RESET}\n"
+
+begin_test "warns when Phase header line is missing"
+prepare_fixture "state-no-phase.md" "${TEST_PLANNING_DIR}/main/STATE.md"
+run_hook "$HOOK" "$(make_tool_input "${TEST_PLANNING_DIR}/main/STATE.md")"
+assert_exit_code 0
+assert_stderr_contains "Phase" "should warn about missing phase"
+
+# --- Windows backslash paths ---
+
+printf "\n${YELLOW}Path handling${RESET}\n"
+
+begin_test "handles Windows backslash paths"
+prepare_fixture "state-valid.md" "${TEST_PLANNING_DIR}/main/STATE.md"
+WINPATH=$(echo "${TEST_PLANNING_DIR}/main/STATE.md" | sed 's|/|\\\\|g')
+run_hook "$HOOK" "$(make_tool_input "$WINPATH")"
+assert_exit_code 0 "should handle backslash paths without crashing"
+
+# --- Report ---
+report_results "test-validate-state.sh"
