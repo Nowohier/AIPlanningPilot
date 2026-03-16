@@ -86,6 +86,40 @@ developer's paths.
 
 6. Ensure all `${PROJECT_REPO}/.claude/hooks/*.sh` files have Unix line endings (LF, not CRLF).
 
+## Step 4c — Configure project-local permissions
+
+Set up `${PROJECT_REPO}/.claude/settings.local.json` so that Claude Code can
+access planning repo files without permission prompts when running from the
+project repo.
+
+1. Read `${PROJECT_REPO}/.claude/settings.local.json` (if it exists).
+2. **Merge** the following into the existing content (preserve any existing
+   `permissions`, `allow` entries, or other settings the developer already has):
+   - Add `${PLANNING_REPO}` to the `additionalDirectories` array (create the
+     array if it doesn't exist).
+   - If `${PLANNING_REPO}` is already listed, skip — do not add duplicates.
+3. The result should look like (with existing settings preserved):
+   ```json
+   {
+     "additionalDirectories": [
+       "{literal planning repo path}"
+     ],
+     "permissions": {
+       "allow": [
+         "Bash(find:*)"
+       ]
+     }
+   }
+   ```
+   The `permissions.allow` entries above are defaults — preserve any additional
+   entries the developer already has.
+4. Show the proposed `settings.local.json` content and ask for confirmation
+   before writing.
+
+> **Why**: Commands like `/moin`, `/ciao`, `/decision` run from the project repo
+> but read and write files in the planning repo. Without `additionalDirectories`,
+> Claude prompts for permission on every cross-repo file access.
+
 ## Step 5 — Create handover file
 
 Derive the filename from the developer name: `handover-{lowercase name}.md`
