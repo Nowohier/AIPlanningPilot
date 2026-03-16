@@ -93,27 +93,62 @@ access planning repo files without permission prompts when running from the
 project repo.
 
 1. Read `${PROJECT_REPO}/.claude/settings.local.json` (if it exists).
-2. **Merge** the following into the existing content (preserve any existing
+2. **Convert the planning repo path to MSYS format** for permission rules:
+   - Run `cygpath -u "{planning repo Windows path}"` to get the MSYS path
+     (e.g., `M:\CODE_COPY\MyProject-planning` → `/m/CODE_COPY/MyProject-planning`)
+   - This is required because Claude Code's permission matcher on Windows (Git Bash)
+     compares against MSYS-normalized paths, not native Windows paths.
+3. **Merge** the following into the existing content (preserve any existing
    `permissions`, `allow` entries, or other settings the developer already has):
-   - Add `${PLANNING_REPO}` to the `additionalDirectories` array (create the
-     array if it doesn't exist).
-   - If `${PLANNING_REPO}` is already listed, skip — do not add duplicates.
-3. The result should look like (with existing settings preserved):
+   - Add the planning repo path (Windows format, forward slashes) to the
+     `additionalDirectories` array (create the array if it doesn't exist).
+   - If already listed, skip — do not add duplicates.
+   - Add Read/Edit/Write permission rules using the **MSYS path with `//` prefix**.
+4. The result should look like (with existing settings preserved):
    ```json
    {
      "additionalDirectories": [
-       "{literal planning repo path}"
+       "{planning repo path, Windows forward-slash format}"
      ],
      "permissions": {
        "allow": [
-         "Bash(find:*)"
+         "Bash(find:*)",
+         "Read(//{msys planning repo path}/**)",
+         "Edit(//{msys planning repo path}/**)",
+         "Write(//{msys planning repo path}/**)"
        ]
      }
    }
    ```
+
+   **Concrete example** for planning repo `M:\CODE_COPY\MyProject-planning`:
+   ```json
+   {
+     "additionalDirectories": [
+       "M:/CODE_COPY/MyProject-planning"
+     ],
+     "permissions": {
+       "allow": [
+         "Bash(find:*)",
+         "Read(//m/CODE_COPY/MyProject-planning/**)",
+         "Edit(//m/CODE_COPY/MyProject-planning/**)",
+         "Write(//m/CODE_COPY/MyProject-planning/**)"
+       ]
+     }
+   }
+   ```
+
+   **Permission path format rules**:
+   - Use `cygpath -u` to convert Windows paths to MSYS format (`/m/...`)
+   - Prepend `//` — this is the gitignore-style absolute-path prefix
+   - Drive letters must be **lowercase** (`//m/` not `//M/`)
+   - Always use forward slashes
+   - **Wrong**: `Read(M:\\CODE_COPY\\...)` or `Read(//M:/CODE_COPY/...)`
+   - **Right**: `Read(//m/CODE_COPY/...)`
+
    The `permissions.allow` entries above are defaults — preserve any additional
    entries the developer already has.
-4. Show the proposed `settings.local.json` content and ask for confirmation
+5. Show the proposed `settings.local.json` content and ask for confirmation
    before writing.
 
 > **Why**: Commands like `/moin`, `/ciao`, `/decision` run from the project repo
