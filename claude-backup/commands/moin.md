@@ -49,9 +49,13 @@ hook fixes) are picked up at the start of each session.
 5. In each `.claude/commands/*.md` file, replace:
    - `${PROJECT_REPO}` → the literal project path from CLAUDE.md
    - `${PLANNING_REPO}` → the literal planning path from CLAUDE.md
-   Update the header note in each command to:
+   Replace the template header note with **exactly these two lines** (both are required):
    > **Paths**: This command uses literal paths for {developer name}'s machine.
    > If paths differ, update them here or run `/onboard`. Canonical docs: `main/CONFIG.md`.
+
+   **IMPORTANT — do NOT delegate this step to a sub-agent.** Perform all Edit
+   tool calls directly. Sub-agents have truncated replacement text in the past,
+   silently dropping the second header line from all command files.
 
    **IMPORTANT — use the Edit tool** for these replacements, NOT `sed` or `perl`
    via Bash. Windows paths contain backslashes which sed and perl interpret as
