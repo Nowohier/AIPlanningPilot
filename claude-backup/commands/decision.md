@@ -2,6 +2,9 @@
 
 > **Trigger rule**: Only run this command when the user explicitly invokes it via `/decision`. Do NOT trigger from conversational mentions of "decision", "decided", "let's decide", or similar phrasing.
 
+> **Paths**: This template uses <PROJECT_REPO> and <PLANNING_REPO> variables.
+> Run `/onboard` to configure literal paths for your machine. See `main/CONFIG.md`.
+
 Immediately capture an architecture/technology decision so it's not lost.
 
 ## Steps

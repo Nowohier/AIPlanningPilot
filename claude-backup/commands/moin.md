@@ -53,6 +53,13 @@ hook fixes) are picked up at the start of each session.
    > **Paths**: This command uses literal paths for {developer name}'s machine.
    > If paths differ, update them here or run `/onboard`. Canonical docs: `main/CONFIG.md`.
 
+   **IMPORTANT — use the Edit tool** for these replacements, NOT `sed` or `perl`
+   via Bash. Windows paths contain backslashes which sed and perl interpret as
+   escape characters in replacement strings, silently destroying paths
+   (backslash + letter collapses to just the letter). The Edit tool handles
+   literal strings correctly. After replacement, verify at least one file to
+   confirm paths are intact.
+
 6. In `.claude/hooks/env.sh`, replace variable placeholders with bash-format
    paths (see `/onboard` Step 4b for the Windows → bash conversion rules) and
    set `DEVELOPER` to the developer name from CLAUDE.md.

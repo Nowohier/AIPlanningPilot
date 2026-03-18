@@ -2,6 +2,9 @@
 
 > **Trigger rule**: Only run this command when the user explicitly invokes it via `/recap`. Do NOT trigger from conversational mentions of "recap", "catch up", "catch me up", "what did I miss", or similar phrasing.
 
+> **Paths**: This template uses <PROJECT_REPO> and <PLANNING_REPO> variables.
+> Run `/onboard` to configure literal paths for your machine. See `main/CONFIG.md`.
+
 For returning after multiple days away. Provides a broader summary than /moin.
 
 ## Steps

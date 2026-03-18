@@ -2,6 +2,9 @@
 
 > **Trigger rule**: Only run this command when the user explicitly invokes it via `/initial-planning`. Do NOT trigger from conversational mentions of "initial planning", "set up project", "bootstrap", or similar phrasing.
 
+> **Paths**: This template uses <PROJECT_REPO> and <PLANNING_REPO> variables.
+> Run `/onboard` to configure literal paths for your machine. See `main/CONFIG.md`.
+
 Interactive wizard that bootstraps a new project's planning structure.
 Creates STATE.md, PLAN.md, plan files, and decisions index.
 

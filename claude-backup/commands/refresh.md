@@ -2,6 +2,9 @@
 
 > **Trigger rule**: Only run this command when the user explicitly invokes it via `/refresh`. Do NOT trigger from conversational mentions of "refresh", "reload context", "re-anchor", or similar phrasing.
 
+> **Paths**: This template uses <PROJECT_REPO> and <PLANNING_REPO> variables.
+> Run `/onboard` to configure literal paths for your machine. See `main/CONFIG.md`.
+
 Lightweight context reload for when the session has been running long
 and you need to re-anchor on project state.
 
