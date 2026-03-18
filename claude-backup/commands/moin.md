@@ -20,7 +20,14 @@ Load plan overview + current phase only. Deep references (full analysis, other p
    **"No project initialized. Run `/initial-planning` first."**
 4. If all checks pass, use the developer name for the rest of the command and proceed silently.
 
-## Step 0b — Sync template to .claude/
+## Step 0b — Sync template to .claude/ (optional)
+
+Ask the user:
+**"Refresh .claude/ commands & hooks from templates? (y/n)"**
+
+If the user declines, skip this entire step and proceed to Step 1.
+
+If the user accepts, perform the sync:
 
 The template in `${PLANNING_REPO}/claude-backup/` is the single
 source of truth. Sync it to `.claude/` so any template updates (new commands,
