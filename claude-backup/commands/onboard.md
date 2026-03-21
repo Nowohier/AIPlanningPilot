@@ -68,13 +68,13 @@ developer's paths.
 
 2. **IMPORTANT — Bash path conversion**: The hooks run in Git Bash, which uses
    Unix-style paths. Convert the developer's Windows paths to bash-compatible format:
-   - `M:\CODE_COPY\...` → `/mnt/m/CODE_COPY/...`
-   - General rule: `{DRIVE}:\...` → `/mnt/{drive_lowercase}/...`
-   Verify the converted path works: `bash -c "test -d '/mnt/m/...' && echo ok"`
+   - `M:\CODE_COPY\...` → `/m/CODE_COPY/...`
+   - General rule: `{DRIVE}:\...` → `/{drive_lowercase}/...`
+   Verify the converted path works: `bash -c "test -d '/m/...' && echo ok"`
 
 3. Replace the variable placeholders with the bash-compatible literal values:
-   - `PROJECT_REPO="${PROJECT_REPO}"` → `PROJECT_REPO="/mnt/m/..."`
-   - `PLANNING_REPO="${PLANNING_REPO}"` → `PLANNING_REPO="/mnt/m/..."`
+   - `PROJECT_REPO="${PROJECT_REPO}"` → `PROJECT_REPO="/m/..."`
+   - `PLANNING_REPO="${PLANNING_REPO}"` → `PLANNING_REPO="/m/..."`
    - `DEVELOPER="UNCONFIGURED"` → `DEVELOPER="{developer name}"`
 
 4. Keep the derived paths using bash variable expansion (e.g.,
