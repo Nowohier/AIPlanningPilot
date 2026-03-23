@@ -59,7 +59,7 @@ Same as Check 2 but for `${PLANNING_REPO}`.
 Read `.claude/hooks/env.sh`. Check the `PROJECT_REPO=` and `DEVELOPER=` lines.
 
 - **PASS**: No `${...}` placeholders remain, and `DEVELOPER` is not `UNCONFIGURED`.
-- **FAIL**: Placeholders like `${PROJECT_REPO}` still present, or `DEVELOPER` is `UNCONFIGURED`.
+- **FAIL**: Placeholders like `\${PROJECT_REPO}` still present, or `DEVELOPER` is `UNCONFIGURED`.
   → Run `/onboard` to resolve env.sh placeholders, or run `/moin` to sync from template.
 
 ### Check 5 — Node.js available

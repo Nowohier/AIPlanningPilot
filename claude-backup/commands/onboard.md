@@ -50,8 +50,8 @@ with the developer's literal paths.
    - Preserve all non-hook settings unchanged.
 
 3. In each `${PROJECT_REPO}/.claude/commands/*.md` file, replace every occurrence of:
-   - `${PROJECT_REPO}` → the project path from Step 1
-   - `${PLANNING_REPO}` → the planning path from Step 1
+   - `\${PROJECT_REPO}` → the project path from Step 1
+   - `\${PLANNING_REPO}` → the planning path from Step 1
 
 4. Update the header note in each command to:
    > **Paths**: This command uses literal paths for {developer name}'s machine.
@@ -73,12 +73,12 @@ developer's paths.
    Verify the converted path works: `bash -c "test -d '/m/...' && echo ok"`
 
 3. Replace the variable placeholders with the bash-compatible literal values:
-   - `PROJECT_REPO="${PROJECT_REPO}"` → `PROJECT_REPO="/m/..."`
-   - `PLANNING_REPO="${PLANNING_REPO}"` → `PLANNING_REPO="/m/..."`
+   - `PROJECT_REPO="\${PROJECT_REPO}"` → `PROJECT_REPO="/m/..."`
+   - `PLANNING_REPO="\${PLANNING_REPO}"` → `PLANNING_REPO="/m/..."`
    - `DEVELOPER="UNCONFIGURED"` → `DEVELOPER="{developer name}"`
 
 4. Keep the derived paths using bash variable expansion (e.g.,
-   `PLANNING_DIR="${PLANNING_REPO}"`) — they resolve automatically
+   `PLANNING_DIR="\${PLANNING_REPO}"`) — they resolve automatically
    from the literal values set above.
 
 5. Verify `${PROJECT_REPO}/.claude/settings.json` contains the planning hook registrations
