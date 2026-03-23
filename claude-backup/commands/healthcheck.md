@@ -161,6 +161,16 @@ Do NOT compare file contents (templates have variables, runtime has literal path
 - **FAIL**: Files in template not found in `.claude/`. List the missing files.
   → Run `/moin` to sync template files to `.claude/`.
 
+### Check 13 — Skills sync
+
+Compare skill directories in `claude-backup/skills/` vs `.claude/skills/`.
+Check for skill directories **missing from `.claude/skills/`** that exist in `claude-backup/skills/`.
+A skill directory is considered present if it contains a `SKILL.md` file.
+
+- **PASS**: All backup skills present. Show "OK ({count}/{count} skills)".
+- **WARN**: Skills missing from `.claude/skills/`. List the missing skill names.
+  → Run `/moin` with sync enabled to restore missing skills.
+
 ## Step 2 — Present report
 
 Present the formatted report using this layout:
@@ -181,8 +191,9 @@ Health Check Report
  [PASS]  STATE.md sections valid (4/4)
  [PASS]  STATE.md fresh (updated {N} day(s) ago)
  [PASS]  Template sync OK (no missing files)
+ [PASS]  Skills sync OK ({count}/{count} skills)
 
-Result: {passed}/12 checks passed. {summary}
+Result: {passed}/13 checks passed. {summary}
 ```
 
 For failures and warnings, add a remediation hint on the next line:

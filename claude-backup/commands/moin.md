@@ -35,6 +35,7 @@ hook fixes) are picked up at the start of each session.
 
 1. Copy every file from `claude-backup/commands/` to `.claude/commands/`.
 2. Copy every file from `claude-backup/hooks/` to `.claude/hooks/`.
+2b. Copy every directory from `claude-backup/skills/` to `.claude/skills/`. Preserve any skills in `.claude/skills/` that do NOT exist in `claude-backup/skills/` (user-installed or from other sources). For skills that exist in both locations, overwrite with the backup version.
 3. **Sync** hook registrations from `claude-backup/settings.json` into `.claude/settings.json`:
    - Read both files. For each hook point (`PreToolUse`, `PostToolUse`, `UserPromptSubmit`):
 
