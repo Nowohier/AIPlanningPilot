@@ -26,15 +26,15 @@ import { fileURLToPath } from 'node:url';
  * @returns {string}
  */
 export function winToBashPath(winPath) {
-    // Already a Unix path
-    if (winPath.startsWith('/')) return winPath;
+  // Already a Unix path
+  if (winPath.startsWith('/')) return winPath;
 
-    const match = winPath.match(/^([A-Za-z]):[/\\](.*)/);
-    if (!match) return winPath;
+  const match = winPath.match(/^([A-Za-z]):[/\\](.*)/);
+  if (!match) return winPath;
 
-    const drive = match[1].toLowerCase();
-    const rest = match[2].replace(/\\/g, '/');
-    return `/${drive}/${rest}`;
+  const drive = match[1].toLowerCase();
+  const rest = match[2].replace(/\\/g, '/');
+  return `/${drive}/${rest}`;
 }
 
 /**
@@ -43,42 +43,42 @@ export function winToBashPath(winPath) {
  * @returns {{ developer: string, projectRepo: string, planningRepo: string, bashProjectPath: string, bashPlanningPath: string }}
  */
 export function parseConfig(claudeMdPath) {
-    let content;
-    try {
-        content = readFileSync(claudeMdPath, 'utf-8');
-    } catch {
-        throw new Error(`Cannot parse ${claudeMdPath}. Run /onboard first.`);
-    }
+  let content;
+  try {
+    content = readFileSync(claudeMdPath, 'utf-8');
+  } catch {
+    throw new Error(`Cannot parse ${claudeMdPath}. Run /onboard first.`);
+  }
 
-    // Extract developer name: **Developer**: {name}
-    const devMatch = content.match(/\*\*Developer\*\*:\s*(.+)/);
-    if (!devMatch) {
-        throw new Error(`Developer field not found in ${claudeMdPath}. Run /onboard first.`);
-    }
-    const developer = devMatch[1].trim();
-    if (developer === 'UNCONFIGURED') {
-        throw new Error('Developer not configured. Run /onboard first.');
-    }
+  // Extract developer name: **Developer**: {name}
+  const devMatch = content.match(/\*\*Developer\*\*:\s*(.+)/);
+  if (!devMatch) {
+    throw new Error(`Developer field not found in ${claudeMdPath}. Run /onboard first.`);
+  }
+  const developer = devMatch[1].trim();
+  if (developer === 'UNCONFIGURED') {
+    throw new Error('Developer not configured. Run /onboard first.');
+  }
 
-    // Extract path variables from the markdown table.
-    // Table rows look like: | `${PROJECT_REPO}` | `M:\CODE_COPY\ExampleOrg\ExampleProject` |
-    const projectRepoMatch = content.match(/\|\s*`\$\{PROJECT_REPO\}`\s*\|\s*`([^`]+)`/);
-    const planningRepoMatch = content.match(/\|\s*`\$\{PLANNING_REPO\}`\s*\|\s*`([^`]+)`/);
+  // Extract path variables from the markdown table.
+  // Table rows look like: | `${PROJECT_REPO}` | `M:\CODE_COPY\ExampleOrg\ExampleProject` |
+  const projectRepoMatch = content.match(/\|\s*`\$\{PROJECT_REPO\}`\s*\|\s*`([^`]+)`/);
+  const planningRepoMatch = content.match(/\|\s*`\$\{PLANNING_REPO\}`\s*\|\s*`([^`]+)`/);
 
-    if (!projectRepoMatch || !planningRepoMatch) {
-        throw new Error(`Path variables not found in ${claudeMdPath}`);
-    }
+  if (!projectRepoMatch || !planningRepoMatch) {
+    throw new Error(`Path variables not found in ${claudeMdPath}`);
+  }
 
-    const projectRepo = projectRepoMatch[1].trim();
-    const planningRepo = planningRepoMatch[1].trim();
+  const projectRepo = projectRepoMatch[1].trim();
+  const planningRepo = planningRepoMatch[1].trim();
 
-    return {
-        developer,
-        projectRepo,
-        planningRepo,
-        bashProjectPath: winToBashPath(projectRepo),
-        bashPlanningPath: winToBashPath(planningRepo),
-    };
+  return {
+    developer,
+    projectRepo,
+    planningRepo,
+    bashProjectPath: winToBashPath(projectRepo),
+    bashPlanningPath: winToBashPath(planningRepo),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -98,7 +98,7 @@ const HEADER_REGEX = /^> \*\*Paths\*\*: This template uses .*(?:PROJECT_REPO|PLA
  * @returns {string}
  */
 function buildDeployedHeader(developer) {
-    return `> **Paths**: This command uses literal paths for ${developer}'s machine.\n> If paths differ, update them here or run \`/onboard\`. Canonical docs: \`main/CONFIG.md\`.`;
+  return `> **Paths**: This command uses literal paths for ${developer}'s machine.\n> If paths differ, update them here or run \`/onboard\`. Canonical docs: \`main/CONFIG.md\`.`;
 }
 
 /**
@@ -109,46 +109,46 @@ function buildDeployedHeader(developer) {
  * @returns {{ synced: number, localPreserved: number }}
  */
 export function syncCommands(config, backupDir, targetDir) {
-    mkdirSync(targetDir, { recursive: true });
+  mkdirSync(targetDir, { recursive: true });
 
-    const backupFiles = readdirSync(backupDir).filter(f => f.endsWith('.md'));
-    const targetFiles = new Set(readdirSync(targetDir).filter(f => f.endsWith('.md')));
-    const backupFileSet = new Set(backupFiles);
+  const backupFiles = readdirSync(backupDir).filter(f => f.endsWith('.md'));
+  const targetFiles = new Set(readdirSync(targetDir).filter(f => f.endsWith('.md')));
+  const backupFileSet = new Set(backupFiles);
 
-    const deployedHeader = buildDeployedHeader(config.developer);
+  const deployedHeader = buildDeployedHeader(config.developer);
 
-    for (const file of backupFiles) {
-        let content = readFileSync(join(backupDir, file), 'utf-8');
+  for (const file of backupFiles) {
+    let content = readFileSync(join(backupDir, file), 'utf-8');
 
-        // Normalize CRLF to LF before processing (templates may have Windows line endings)
-        content = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    // Normalize CRLF to LF before processing (templates may have Windows line endings)
+    content = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
-        // Replace template header with deployed header
-        content = content.replace(HEADER_REGEX, deployedHeader);
+    // Replace template header with deployed header
+    content = content.replace(HEADER_REGEX, deployedHeader);
 
-        // Protect escaped references: \${VAR} → sentinel (these are instructional examples, not paths)
-        content = content.split('\\${PROJECT_REPO}').join('__ESCAPED_PROJECT_REPO__');
-        content = content.split('\\${PLANNING_REPO}').join('__ESCAPED_PLANNING_REPO__');
+    // Protect escaped references: \${VAR} → sentinel (these are instructional examples, not paths)
+    content = content.split('\\${PROJECT_REPO}').join('__ESCAPED_PROJECT_REPO__');
+    content = content.split('\\${PLANNING_REPO}').join('__ESCAPED_PLANNING_REPO__');
 
-        // Substitute path variables in body
-        // Use split/join for literal replacement (no regex escaping needed)
-        content = content.split('${PLANNING_REPO}').join(config.planningRepo);
-        content = content.split('${PROJECT_REPO}').join(config.projectRepo);
+    // Substitute path variables in body
+    // Use split/join for literal replacement (no regex escaping needed)
+    content = content.split('${PLANNING_REPO}').join(config.planningRepo);
+    content = content.split('${PROJECT_REPO}').join(config.projectRepo);
 
-        // Restore escaped references back to literal ${VAR} text
-        content = content.split('__ESCAPED_PROJECT_REPO__').join('${PROJECT_REPO}');
-        content = content.split('__ESCAPED_PLANNING_REPO__').join('${PLANNING_REPO}');
+    // Restore escaped references back to literal ${VAR} text
+    content = content.split('__ESCAPED_PROJECT_REPO__').join('${PROJECT_REPO}');
+    content = content.split('__ESCAPED_PLANNING_REPO__').join('${PLANNING_REPO}');
 
-        writeFileSync(join(targetDir, file), content, 'utf-8');
-    }
+    writeFileSync(join(targetDir, file), content, 'utf-8');
+  }
 
-    // Count local-only files (in target but not in backup)
-    let localPreserved = 0;
-    for (const file of targetFiles) {
-        if (!backupFileSet.has(file)) localPreserved++;
-    }
+  // Count local-only files (in target but not in backup)
+  let localPreserved = 0;
+  for (const file of targetFiles) {
+    if (!backupFileSet.has(file)) localPreserved++;
+  }
 
-    return { synced: backupFiles.length, localPreserved };
+  return { synced: backupFiles.length, localPreserved };
 }
 
 // ---------------------------------------------------------------------------
@@ -163,39 +163,39 @@ export function syncCommands(config, backupDir, targetDir) {
  * @returns {{ synced: number }}
  */
 export function syncHooks(config, backupDir, targetDir) {
-    mkdirSync(targetDir, { recursive: true });
+  mkdirSync(targetDir, { recursive: true });
 
-    const backupFiles = readdirSync(backupDir).filter(f => f.endsWith('.sh'));
+  const backupFiles = readdirSync(backupDir).filter(f => f.endsWith('.sh'));
 
-    for (const file of backupFiles) {
-        let content = readFileSync(join(backupDir, file), 'utf-8');
+  for (const file of backupFiles) {
+    let content = readFileSync(join(backupDir, file), 'utf-8');
 
-        // Special handling for env.sh: resolve variable placeholders
-        if (file === 'env.sh') {
-            // Replace only the top-level variable assignments, not derived ones like PLANNING_DIR
-            content = content.replace(
-                /^PROJECT_REPO=.*$/m,
-                `PROJECT_REPO="${config.bashProjectPath}"`
-            );
-            content = content.replace(
-                /^PLANNING_REPO=.*$/m,
-                `PLANNING_REPO="${config.bashPlanningPath}"`
-            );
-            content = content.replace(
-                /^DEVELOPER=.*$/m,
-                `DEVELOPER="${config.developer}"`
-            );
-        }
-
-        // Fix line endings: CRLF -> LF
-        content = content.replace(/\r\n/g, '\n');
-        // Also handle stray \r
-        content = content.replace(/\r/g, '\n');
-
-        writeFileSync(join(targetDir, file), content, 'utf-8');
+    // Special handling for env.sh: resolve variable placeholders
+    if (file === 'env.sh') {
+      // Replace only the top-level variable assignments, not derived ones like PLANNING_DIR
+      content = content.replace(
+        /^PROJECT_REPO=.*$/m,
+        `PROJECT_REPO="${config.bashProjectPath}"`
+      );
+      content = content.replace(
+        /^PLANNING_REPO=.*$/m,
+        `PLANNING_REPO="${config.bashPlanningPath}"`
+      );
+      content = content.replace(
+        /^DEVELOPER=.*$/m,
+        `DEVELOPER="${config.developer}"`
+      );
     }
 
-    return { synced: backupFiles.length };
+    // Fix line endings: CRLF -> LF
+    content = content.replace(/\r\n/g, '\n');
+    // Also handle stray \r
+    content = content.replace(/\r/g, '\n');
+
+    writeFileSync(join(targetDir, file), content, 'utf-8');
+  }
+
+  return { synced: backupFiles.length };
 }
 
 // ---------------------------------------------------------------------------
@@ -208,22 +208,22 @@ export function syncHooks(config, backupDir, targetDir) {
  * @param {string} dest
  */
 export function copyDirRecursive(src, dest) {
-    mkdirSync(dest, { recursive: true });
+  mkdirSync(dest, { recursive: true });
 
-    const entries = readdirSync(src, { withFileTypes: true });
-    for (const entry of entries) {
-        const srcPath = join(src, entry.name);
-        const destPath = join(dest, entry.name);
+  const entries = readdirSync(src, { withFileTypes: true });
+  for (const entry of entries) {
+    const srcPath = join(src, entry.name);
+    const destPath = join(dest, entry.name);
 
-        // Resolve symlinks: check the real stat, not the link stat
-        const realStat = statSync(srcPath);
-        if (realStat.isDirectory()) {
-            copyDirRecursive(srcPath, destPath);
-        } else {
-            // copyFileSync follows symlinks by default (copies actual content)
-            copyFileSync(srcPath, destPath);
-        }
+    // Resolve symlinks: check the real stat, not the link stat
+    const realStat = statSync(srcPath);
+    if (realStat.isDirectory()) {
+      copyDirRecursive(srcPath, destPath);
+    } else {
+      // copyFileSync follows symlinks by default (copies actual content)
+      copyFileSync(srcPath, destPath);
     }
+  }
 }
 
 /**
@@ -233,26 +233,26 @@ export function copyDirRecursive(src, dest) {
  * @returns {{ synced: number, localPreserved: number }}
  */
 export function syncSkills(backupDir, targetDir) {
-    mkdirSync(targetDir, { recursive: true });
+  mkdirSync(targetDir, { recursive: true });
 
-    const backupEntries = readdirSync(backupDir, { withFileTypes: true })
-        .filter(e => e.isDirectory());
-    const targetEntries = existsSync(targetDir)
-        ? readdirSync(targetDir, { withFileTypes: true }).filter(e => e.isDirectory())
-        : [];
+  const backupEntries = readdirSync(backupDir, { withFileTypes: true })
+    .filter(e => e.isDirectory());
+  const targetEntries = existsSync(targetDir)
+    ? readdirSync(targetDir, { withFileTypes: true }).filter(e => e.isDirectory())
+    : [];
 
-    const backupNames = new Set(backupEntries.map(e => e.name));
+  const backupNames = new Set(backupEntries.map(e => e.name));
 
-    for (const entry of backupEntries) {
-        copyDirRecursive(join(backupDir, entry.name), join(targetDir, entry.name));
-    }
+  for (const entry of backupEntries) {
+    copyDirRecursive(join(backupDir, entry.name), join(targetDir, entry.name));
+  }
 
-    let localPreserved = 0;
-    for (const entry of targetEntries) {
-        if (!backupNames.has(entry.name)) localPreserved++;
-    }
+  let localPreserved = 0;
+  for (const entry of targetEntries) {
+    if (!backupNames.has(entry.name)) localPreserved++;
+  }
 
-    return { synced: backupEntries.length, localPreserved };
+  return { synced: backupEntries.length, localPreserved };
 }
 
 // ---------------------------------------------------------------------------
@@ -266,11 +266,11 @@ export function syncSkills(backupDir, targetDir) {
  * @returns {boolean}
  */
 function isPlanningHook(hookEntry, hookFileNames) {
-    if (!hookEntry.command) return false;
-    for (const name of hookFileNames) {
-        if (hookEntry.command.includes(name)) return true;
-    }
-    return false;
+  if (!hookEntry.command) return false;
+  for (const name of hookFileNames) {
+    if (hookEntry.command.includes(name)) return true;
+  }
+  return false;
 }
 
 /**
@@ -281,75 +281,75 @@ function isPlanningHook(hookEntry, hookFileNames) {
  * @returns {{ changed: boolean, added: number, removed: number }}
  */
 export function mergeHookRegistrations(backupSettingsPath, targetSettingsPath, hookFileNames) {
-    const backupSettings = JSON.parse(readFileSync(backupSettingsPath, 'utf-8'));
-    const backupHooks = backupSettings.hooks || {};
+  const backupSettings = JSON.parse(readFileSync(backupSettingsPath, 'utf-8'));
+  const backupHooks = backupSettings.hooks || {};
 
-    let targetSettings;
-    if (existsSync(targetSettingsPath)) {
-        targetSettings = JSON.parse(readFileSync(targetSettingsPath, 'utf-8'));
+  let targetSettings;
+  if (existsSync(targetSettingsPath)) {
+    targetSettings = JSON.parse(readFileSync(targetSettingsPath, 'utf-8'));
+  } else {
+    // First-time setup: start with empty object
+    targetSettings = {};
+  }
+
+  const targetBefore = JSON.stringify(targetSettings);
+
+  const targetHooks = targetSettings.hooks || {};
+  const hookPoints = ['PreToolUse', 'PostToolUse', 'UserPromptSubmit'];
+
+  for (const point of hookPoints) {
+    const backupEntries = backupHooks[point] || [];
+    const targetEntries = targetHooks[point] || [];
+
+    // Filter out all planning hooks from target
+    const nonPlanningEntries = targetEntries.filter(entry => {
+      const hooks = entry.hooks || [];
+      // An entry is a planning entry if ANY of its hooks is a planning hook
+      return !hooks.some(h => isPlanningHook(h, hookFileNames));
+    });
+
+    // Append all planning entries from backup
+    const planningEntries = backupEntries.filter(entry => {
+      const hooks = entry.hooks || [];
+      return hooks.some(h => isPlanningHook(h, hookFileNames));
+    });
+
+    const merged = [...nonPlanningEntries, ...planningEntries];
+
+    if (merged.length > 0) {
+      targetHooks[point] = merged;
     } else {
-        // First-time setup: start with empty object
-        targetSettings = {};
+      delete targetHooks[point];
     }
+  }
 
-    const targetBefore = JSON.stringify(targetSettings);
+  targetSettings.hooks = targetHooks;
 
-    const targetHooks = targetSettings.hooks || {};
-    const hookPoints = ['PreToolUse', 'PostToolUse', 'UserPromptSubmit'];
+  // Clean up empty hooks object
+  if (Object.keys(targetSettings.hooks).length === 0) {
+    delete targetSettings.hooks;
+  }
 
+  const targetAfter = JSON.stringify(targetSettings);
+  const changed = targetBefore !== targetAfter;
+
+  writeFileSync(targetSettingsPath, JSON.stringify(targetSettings, null, 2) + '\n', 'utf-8');
+
+  // Count changes for reporting
+  let added = 0;
+  let removed = 0;
+  if (changed) {
+    const beforeHooks = JSON.parse(targetBefore).hooks || {};
+    const afterHooks = targetSettings.hooks || {};
     for (const point of hookPoints) {
-        const backupEntries = backupHooks[point] || [];
-        const targetEntries = targetHooks[point] || [];
-
-        // Filter out all planning hooks from target
-        const nonPlanningEntries = targetEntries.filter(entry => {
-            const hooks = entry.hooks || [];
-            // An entry is a planning entry if ANY of its hooks is a planning hook
-            return !hooks.some(h => isPlanningHook(h, hookFileNames));
-        });
-
-        // Append all planning entries from backup
-        const planningEntries = backupEntries.filter(entry => {
-            const hooks = entry.hooks || [];
-            return hooks.some(h => isPlanningHook(h, hookFileNames));
-        });
-
-        const merged = [...nonPlanningEntries, ...planningEntries];
-
-        if (merged.length > 0) {
-            targetHooks[point] = merged;
-        } else {
-            delete targetHooks[point];
-        }
+      const beforeCount = (beforeHooks[point] || []).length;
+      const afterCount = (afterHooks[point] || []).length;
+      if (afterCount > beforeCount) added += afterCount - beforeCount;
+      if (beforeCount > afterCount) removed += beforeCount - afterCount;
     }
+  }
 
-    targetSettings.hooks = targetHooks;
-
-    // Clean up empty hooks object
-    if (Object.keys(targetSettings.hooks).length === 0) {
-        delete targetSettings.hooks;
-    }
-
-    const targetAfter = JSON.stringify(targetSettings);
-    const changed = targetBefore !== targetAfter;
-
-    writeFileSync(targetSettingsPath, JSON.stringify(targetSettings, null, 2) + '\n', 'utf-8');
-
-    // Count changes for reporting
-    let added = 0;
-    let removed = 0;
-    if (changed) {
-        const beforeHooks = JSON.parse(targetBefore).hooks || {};
-        const afterHooks = targetSettings.hooks || {};
-        for (const point of hookPoints) {
-            const beforeCount = (beforeHooks[point] || []).length;
-            const afterCount = (afterHooks[point] || []).length;
-            if (afterCount > beforeCount) added += afterCount - beforeCount;
-            if (beforeCount > afterCount) removed += beforeCount - afterCount;
-        }
-    }
-
-    return { changed, added, removed };
+  return { changed, added, removed };
 }
 
 // ---------------------------------------------------------------------------
@@ -362,73 +362,73 @@ export function mergeHookRegistrations(backupSettingsPath, targetSettingsPath, h
  * @returns {{ commands: object, hooks: object, skills: object, settings: object }}
  */
 export function runSync(projectRoot) {
-    const claudeMdPath = join(projectRoot, '.claude', 'CLAUDE.md');
-    const config = parseConfig(claudeMdPath);
+  const claudeMdPath = join(projectRoot, '.claude', 'CLAUDE.md');
+  const config = parseConfig(claudeMdPath);
 
-    const backupBase = join(projectRoot, 'restructuring', 'claude-backup');
-    const targetBase = join(projectRoot, '.claude');
+  const backupBase = join(config.planningRepo, 'claude-backup');
+  const targetBase = join(projectRoot, '.claude');
 
-    if (!existsSync(backupBase)) {
-        throw new Error(`Backup directory not found: ${backupBase}`);
-    }
+  if (!existsSync(backupBase)) {
+    throw new Error(`Backup directory not found: ${backupBase}`);
+  }
 
-    const commands = syncCommands(
-        config,
-        join(backupBase, 'commands'),
-        join(targetBase, 'commands')
-    );
+  const commands = syncCommands(
+    config,
+    join(backupBase, 'commands'),
+    join(targetBase, 'commands')
+  );
 
-    const hooks = syncHooks(
-        config,
-        join(backupBase, 'hooks'),
-        join(targetBase, 'hooks')
-    );
+  const hooks = syncHooks(
+    config,
+    join(backupBase, 'hooks'),
+    join(targetBase, 'hooks')
+  );
 
-    const skills = syncSkills(
-        join(backupBase, 'skills'),
-        join(targetBase, 'skills')
-    );
+  const skills = syncSkills(
+    join(backupBase, 'skills'),
+    join(targetBase, 'skills')
+  );
 
-    // Build hook filename set from backup hooks directory
-    const hookFileNames = new Set(
-        readdirSync(join(backupBase, 'hooks')).filter(f => f.endsWith('.sh'))
-    );
+  // Build hook filename set from backup hooks directory
+  const hookFileNames = new Set(
+    readdirSync(join(backupBase, 'hooks')).filter(f => f.endsWith('.sh'))
+  );
 
-    const settings = mergeHookRegistrations(
-        join(backupBase, 'settings.json'),
-        join(targetBase, 'settings.json'),
-        hookFileNames
-    );
+  const settings = mergeHookRegistrations(
+    join(backupBase, 'settings.json'),
+    join(targetBase, 'settings.json'),
+    hookFileNames
+  );
 
-    return { commands, hooks, skills, settings };
+  return { commands, hooks, skills, settings };
 }
 
 /**
  * Entry point. Only runs when the script is executed directly.
  */
 function main() {
-    const projectRoot = resolve(process.cwd());
+  const projectRoot = resolve(process.cwd());
 
-    try {
-        const result = runSync(projectRoot);
+  try {
+    const result = runSync(projectRoot);
 
-        console.log(`Commands: synced ${result.commands.synced} files (${result.commands.localPreserved} local preserved)`);
-        console.log(`Hooks:    synced ${result.hooks.synced} files (LF line endings applied)`);
-        console.log(`Skills:   synced ${result.skills.synced} directories (${result.skills.localPreserved} local preserved)`);
+    console.log(`Commands: synced ${result.commands.synced} files (${result.commands.localPreserved} local preserved)`);
+    console.log(`Hooks:    synced ${result.hooks.synced} files (LF line endings applied)`);
+    console.log(`Skills:   synced ${result.skills.synced} directories (${result.skills.localPreserved} local preserved)`);
 
-        if (result.settings.changed) {
-            console.log(`Settings: ${result.settings.added} hook(s) added, ${result.settings.removed} hook(s) removed -- RESTART SESSION for changes to take effect`);
-        } else {
-            console.log('Settings: no registration changes');
-        }
-    } catch (err) {
-        console.error(`Error: ${err.message}`);
-        process.exit(1);
+    if (result.settings.changed) {
+      console.log(`Settings: ${result.settings.added} hook(s) added, ${result.settings.removed} hook(s) removed -- RESTART SESSION for changes to take effect`);
+    } else {
+      console.log('Settings: no registration changes');
     }
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
+    process.exit(1);
+  }
 }
 
 // Run main() only when executed directly (not imported as a module)
 const __filename = fileURLToPath(import.meta.url);
 if (process.argv[1] && resolve(process.argv[1]) === resolve(__filename)) {
-    main();
+  main();
 }

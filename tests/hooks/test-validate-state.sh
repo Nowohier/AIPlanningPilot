@@ -129,6 +129,37 @@ assert_exit_code 0
 assert_stderr_not_contains "expected 3-4 columns" "should not warn about 4-column Phase Progress"
 assert_stderr_not_contains "unknown status" "should not warn about valid statuses (Done, Day 1 done, Not started)"
 
+# --- PlanFile path resolution ---
+
+printf "\n${YELLOW}PlanFile path validation${RESET}\n"
+
+begin_test "no PlanFile warning when referenced files exist"
+prepare_fixture "state-valid-4col.md" "${TEST_PLANNING_DIR}/main/STATE.md"
+# Create the plan files where the hook should look (relative to PLANNING_DIR, NOT main/)
+mkdir -p "${TEST_PLANNING_DIR}/plan"
+echo "# Overview" > "${TEST_PLANNING_DIR}/plan/overview.md"
+echo "# Phase 1" > "${TEST_PLANNING_DIR}/plan/phase-1.md"
+run_hook "$HOOK" "$(make_tool_input "${TEST_PLANNING_DIR}/main/STATE.md")"
+assert_exit_code 0
+assert_stderr_not_contains "PlanFile.*not found" "should not warn when plan files exist at correct paths"
+
+begin_test "warns when PlanFile references non-existent files"
+prepare_fixture "state-valid-4col.md" "${TEST_PLANNING_DIR}/main/STATE.md"
+# Remove the plan files so they don't exist
+rm -rf "${TEST_PLANNING_DIR}/plan"
+run_hook "$HOOK" "$(make_tool_input "${TEST_PLANNING_DIR}/main/STATE.md")"
+assert_exit_code 0
+assert_stderr_contains "PlanFile.*overview.md.*not found" "should warn about missing plan/overview.md"
+assert_stderr_contains "PlanFile.*phase-1.md.*not found" "should warn about missing plan/phase-1.md"
+
+begin_test "no PlanFile warning when PlanFile column is empty"
+prepare_fixture "state-valid-4col.md" "${TEST_PLANNING_DIR}/main/STATE.md"
+# Phase 2 has empty PlanFile -- should not produce a warning
+rm -rf "${TEST_PLANNING_DIR}/plan"
+run_hook "$HOOK" "$(make_tool_input "${TEST_PLANNING_DIR}/main/STATE.md")"
+# Should warn about overview.md and phase-1.md but NOT about empty PlanFile for Phase 2
+assert_stderr_not_contains "Phase Progress row 3.*PlanFile" "should not warn about empty PlanFile in row 3"
+
 # --- Table structure: bad column counts ---
 
 printf "\n${YELLOW}Table structure (bad column counts)${RESET}\n"

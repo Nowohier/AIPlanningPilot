@@ -149,7 +149,7 @@ validate_state() {
             PLAN_FILE_VAL=$(echo "$PLAN_FILE_VAL" | sed 's/.*\[.*\](\([^)]*\)).*/\1/')
           fi
           if [[ -n "$PLAN_FILE_VAL" && -n "${PLANNING_DIR:-}" && "$PLANNING_DIR" != '${PLANNING_REPO}' && -d "$PLANNING_DIR" ]]; then
-            local RESOLVED_PATH="${PLANNING_DIR}/main/${PLAN_FILE_VAL}"
+            local RESOLVED_PATH="${PLANNING_DIR}/${PLAN_FILE_VAL}"
             if [[ ! -f "$RESOLVED_PATH" ]]; then
               WARNINGS="${WARNINGS}  ⚠ Phase Progress row ${LINE_NUM}: PlanFile '${PLAN_FILE_VAL}' not found\n"
             fi
