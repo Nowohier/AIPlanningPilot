@@ -70,7 +70,7 @@ After the developer confirms, apply changes:
      - **For Next Session**: Concrete action items — what to continue, what to start
      - **Decisions & Findings**: Key decisions (formal or informal), technical discoveries
      - **Open Threads**: Unresolved questions, deferred topics, things to revisit
-     - **Session Context**: 2-3 sentences giving future-Claude enough context to resume
+     - **From Last Session**: 2-3 sentences giving future-Claude enough context to resume
    - Set "Last updated" to today's date
 
 ## Step 5 — Present summary

@@ -56,6 +56,21 @@ case "$FAST_PATH" in
     source "${HOOK_DIR}/validate-decision-record.sh"
     validate_decision_record "$NORMALIZED_PATH"
     ;;
+  *handovers/handover-*|*handovers\\handover-*)
+    # Handover file validation — check required sections and metadata
+    source "${HOOK_DIR}/json-helper.sh"
+    FILE_PATH=$(echo "$INPUT" | json_get "tool_input.file_path")
+    if [[ -z "$FILE_PATH" ]]; then
+      FILE_PATH=$(echo "$INPUT" | json_get "tool_input.path")
+    fi
+
+    # Normalize path: replace backslashes with forward slashes
+    NORMALIZED_PATH="${FILE_PATH//\\//}"
+
+    # Source validate-handover.sh for the validate_handover() function
+    source "${HOOK_DIR}/validate-handover.sh"
+    validate_handover "$NORMALIZED_PATH"
+    ;;
   *)
     # ~99% of edits — fast exit, no Node.js spawned
     exit 0
