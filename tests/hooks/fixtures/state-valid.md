@@ -6,17 +6,17 @@
 
 ## Next Actions
 
-| # | Action | Owner | Status |
-|---|--------|-------|--------|
-| 1 | Build shared component library | Chris | **Next** |
-| 2 | Set up AG Grid prototype | Chris | Pending |
+| # | Action | Owner | Status | Notes |
+|---|--------|-------|--------|-------|
+| 1 | Build shared component library | Chris | **Next** | Shared infra |
+| 2 | Set up AG Grid prototype | Chris | Pending | Phase 2 |
 
 ## Phase Progress
 
-| Phase | Status |
-|-------|--------|
-| **Phase 1** | Complete |
-| **Phase 2** | In Progress |
+| Phase | Status | Summary |
+|-------|--------|---------|
+| **Phase 1** | Complete | Analysis done |
+| **Phase 2** | In Progress | Shared infrastructure build |
 
 ## Decisions Made
 
@@ -24,6 +24,6 @@
 
 ## Open Decisions
 
-| Decision | When |
-|----------|------|
-| Table component choice | Phase 2 |
+| Decision | When | Impact |
+|----------|------|--------|
+| Table component choice | Phase 2 | High |

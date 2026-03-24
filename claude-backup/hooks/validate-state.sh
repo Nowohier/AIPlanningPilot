@@ -3,8 +3,9 @@
 #
 # Event:    PostToolUse (Edit|Write)
 # Behavior: Advisory warning (exit 0 + stderr)
-# Purpose:  Catch missing sections, empty action lists, stale dates
-#           so the next /moin session doesn't silently degrade.
+# Purpose:  Catch missing sections, empty action lists, stale dates,
+#           and table structure issues so the next /moin session
+#           doesn't silently degrade.
 #
 # Input:    Tool call JSON via stdin (PostToolUse provides tool_name + tool_input)
 # Output:   Warnings on stderr (shown to Claude); nothing on stdout
@@ -14,6 +15,38 @@
 
 set -euo pipefail
 source "$(dirname "$0")/env.sh"
+
+# --- Table helper functions ---
+
+# Extract the section block between a given H2 heading and the next H2 heading.
+# Usage: extract_section "$CONTENT" "Section Name"
+# Outputs the lines between "## Section Name" and the next "## " (exclusive).
+extract_section() {
+  local content="$1" heading="$2"
+  echo "$content" | sed -n "/^## ${heading}/,/^## /p" | head -n -1
+}
+
+# Count pipe-delimited columns in a table row.
+# Strips leading/trailing whitespace, then counts pipes minus outer ones.
+# Usage: count_columns "| a | b | c |"  => 3
+count_columns() {
+  local row="$1"
+  # Remove leading/trailing whitespace
+  row=$(echo "$row" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+  # Count pipes, subtract 1 for leading pipe (trailing pipe makes it balance)
+  local pipe_count
+  pipe_count=$(echo "$row" | tr -cd '|' | wc -c)
+  # Columns = pipes - 1 (a row like |a|b|c| has 4 pipes and 3 columns)
+  echo $(( pipe_count - 1 ))
+}
+
+# Get data rows from a section's table (skip header row and separator row).
+# Usage: get_table_data_rows "$SECTION_BLOCK"
+# Outputs only data rows (lines matching |...|, skipping first two such lines).
+get_table_data_rows() {
+  local block="$1"
+  echo "$block" | grep -E '^\s*\|.*\|' | tail -n +3
+}
 
 # --- Core validation function ---
 # Takes a normalized (forward-slash) file path as $1.
@@ -75,6 +108,91 @@ validate_state() {
     fi
   else
     WARNINGS="${WARNINGS}  ⚠ No '**Last Updated**: YYYY-MM-DD' found in header\n"
+  fi
+
+  # --- Table structure: Phase Progress (3-4 columns) ---
+  local PHASE_BLOCK
+  PHASE_BLOCK=$(extract_section "$CONTENT" "Phase Progress")
+  if echo "$PHASE_BLOCK" | grep -qE '^\s*\|.*\|'; then
+    local PHASE_DATA_ROWS
+    PHASE_DATA_ROWS=$(get_table_data_rows "$PHASE_BLOCK")
+    if [[ -n "$PHASE_DATA_ROWS" ]]; then
+      local LINE_NUM=0
+      while IFS= read -r row; do
+        LINE_NUM=$((LINE_NUM + 1))
+        local COL_COUNT
+        COL_COUNT=$(count_columns "$row")
+        if [[ $COL_COUNT -lt 3 ]]; then
+          WARNINGS="${WARNINGS}  ⚠ Phase Progress row ${LINE_NUM}: expected 3-4 columns, found ${COL_COUNT}\n"
+        fi
+
+        # Validate Status column (column 2) for known values
+        local STATUS_VAL
+        STATUS_VAL=$(echo "$row" | awk -F'|' '{print $3}' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/\*//g')
+        if [[ -n "$STATUS_VAL" ]]; then
+          case "$STATUS_VAL" in
+            "Not started"|"In Progress"|"Done"|"Complete"|"Completed") ;;
+            *)
+              if ! echo "$STATUS_VAL" | grep -qE '^Day [0-9]+ done$'; then
+                WARNINGS="${WARNINGS}  ⚠ Phase Progress row ${LINE_NUM}: unknown status '${STATUS_VAL}'\n"
+              fi
+              ;;
+          esac
+        fi
+
+        # Validate PlanFile column (column 4) if present and PLANNING_DIR is available
+        if [[ $COL_COUNT -ge 4 ]]; then
+          local PLAN_FILE_VAL
+          PLAN_FILE_VAL=$(echo "$row" | awk -F'|' '{print $5}' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+          # Strip markdown link syntax: [text](path) -> path
+          if echo "$PLAN_FILE_VAL" | grep -qE '\[.*\]\(.*\)'; then
+            PLAN_FILE_VAL=$(echo "$PLAN_FILE_VAL" | sed 's/.*\[.*\](\([^)]*\)).*/\1/')
+          fi
+          if [[ -n "$PLAN_FILE_VAL" && -n "${PLANNING_DIR:-}" && "$PLANNING_DIR" != '${PLANNING_REPO}' && -d "$PLANNING_DIR" ]]; then
+            local RESOLVED_PATH="${PLANNING_DIR}/main/${PLAN_FILE_VAL}"
+            if [[ ! -f "$RESOLVED_PATH" ]]; then
+              WARNINGS="${WARNINGS}  ⚠ Phase Progress row ${LINE_NUM}: PlanFile '${PLAN_FILE_VAL}' not found\n"
+            fi
+          fi
+        fi
+      done <<< "$PHASE_DATA_ROWS"
+    fi
+  fi
+
+  # --- Table structure: Next Actions (at least 4 columns) ---
+  if echo "$ACTIONS_BLOCK" | grep -qE '^\s*\|.*\|'; then
+    local ACTIONS_DATA_ROWS
+    ACTIONS_DATA_ROWS=$(get_table_data_rows "$ACTIONS_BLOCK")
+    if [[ -n "$ACTIONS_DATA_ROWS" ]]; then
+      local LINE_NUM=0
+      while IFS= read -r row; do
+        LINE_NUM=$((LINE_NUM + 1))
+        local COL_COUNT
+        COL_COUNT=$(count_columns "$row")
+        if [[ $COL_COUNT -lt 4 ]]; then
+          WARNINGS="${WARNINGS}  ⚠ Next Actions row ${LINE_NUM}: expected at least 4 columns (#, Action, Owner, Status), found ${COL_COUNT}\n"
+        fi
+      done <<< "$ACTIONS_DATA_ROWS"
+    fi
+  fi
+
+  # --- Table structure: Open Decisions (3 columns) ---
+  local OPEN_DECISIONS_BLOCK
+  OPEN_DECISIONS_BLOCK=$(extract_section "$CONTENT" "Open Decisions")
+  if echo "$OPEN_DECISIONS_BLOCK" | grep -qE '^\s*\|.*\|'; then
+    local OD_DATA_ROWS
+    OD_DATA_ROWS=$(get_table_data_rows "$OPEN_DECISIONS_BLOCK")
+    if [[ -n "$OD_DATA_ROWS" ]]; then
+      local LINE_NUM=0
+      while IFS= read -r row; do
+        LINE_NUM=$((LINE_NUM + 1))
+        local COL_COUNT
+        COL_COUNT=$(count_columns "$row")
+        if [[ $COL_COUNT -lt 3 ]]; then
+          WARNINGS="${WARNINGS}  ⚠ Open Decisions row ${LINE_NUM}: expected 3 columns (Decision, When, Impact), found ${COL_COUNT}\n"
+        fi
+      done <<< "$OD_DATA_ROWS"
+    fi
   fi
 
   # --- Report via stderr (advisory) ---

@@ -105,6 +105,53 @@ run_hook "$HOOK" "$(make_tool_input "${TEST_PLANNING_DIR}/main/STATE.md")"
 assert_exit_code 0
 assert_stderr_contains "Phase" "should warn about missing phase"
 
+# --- Table structure: valid 3-column ---
+
+printf "\n${YELLOW}Table structure (valid 3-column)${RESET}\n"
+
+begin_test "valid 3-column Phase Progress produces no column warnings"
+prepare_fixture "state-valid.md" "${TEST_PLANNING_DIR}/main/STATE.md"
+run_hook "$HOOK" "$(make_tool_input "${TEST_PLANNING_DIR}/main/STATE.md")"
+assert_exit_code 0
+assert_stderr_not_contains "expected 3-4 columns" "should not warn about Phase Progress columns"
+assert_stderr_not_contains "expected at least 4 columns" "should not warn about Next Actions columns"
+assert_stderr_not_contains "expected 3 columns" "should not warn about Open Decisions columns"
+assert_stderr_not_contains "unknown status" "should not warn about valid statuses"
+
+# --- Table structure: valid 4-column (PlanFile) ---
+
+printf "\n${YELLOW}Table structure (valid 4-column PlanFile)${RESET}\n"
+
+begin_test "valid 4-column Phase Progress (with PlanFile) produces no column warnings"
+prepare_fixture "state-valid-4col.md" "${TEST_PLANNING_DIR}/main/STATE.md"
+run_hook "$HOOK" "$(make_tool_input "${TEST_PLANNING_DIR}/main/STATE.md")"
+assert_exit_code 0
+assert_stderr_not_contains "expected 3-4 columns" "should not warn about 4-column Phase Progress"
+assert_stderr_not_contains "unknown status" "should not warn about valid statuses (Done, Day 1 done, Not started)"
+
+# --- Table structure: bad column counts ---
+
+printf "\n${YELLOW}Table structure (bad column counts)${RESET}\n"
+
+begin_test "warns about insufficient columns in all tables"
+prepare_fixture "state-bad-columns.md" "${TEST_PLANNING_DIR}/main/STATE.md"
+run_hook "$HOOK" "$(make_tool_input "${TEST_PLANNING_DIR}/main/STATE.md")"
+assert_exit_code 0
+assert_stderr_contains "Phase Progress row.*expected 3-4 columns" "should warn about Phase Progress columns"
+assert_stderr_contains "Next Actions row.*expected at least 4 columns" "should warn about Next Actions columns"
+assert_stderr_contains "Open Decisions row.*expected 3 columns" "should warn about Open Decisions columns"
+
+# --- Table structure: unknown status values ---
+
+printf "\n${YELLOW}Unknown status values${RESET}\n"
+
+begin_test "warns about unknown Phase Progress status values"
+prepare_fixture "state-unknown-status.md" "${TEST_PLANNING_DIR}/main/STATE.md"
+run_hook "$HOOK" "$(make_tool_input "${TEST_PLANNING_DIR}/main/STATE.md")"
+assert_exit_code 0
+assert_stderr_contains "unknown status.*WIP" "should warn about 'WIP' status"
+assert_stderr_contains "unknown status.*Almost there" "should warn about 'Almost there' status"
+
 # --- Windows backslash paths ---
 
 printf "\n${YELLOW}Path handling${RESET}\n"
