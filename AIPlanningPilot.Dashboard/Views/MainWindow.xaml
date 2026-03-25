@@ -1,0 +1,221 @@
+<mah:MetroWindow x:Class="AIPlanningPilot.Dashboard.Views.MainWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                 xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                 xmlns:vm="clr-namespace:AIPlanningPilot.Dashboard.ViewModels"
+                 xmlns:views="clr-namespace:AIPlanningPilot.Dashboard.Views"
+                 xmlns:converters="clr-namespace:AIPlanningPilot.Dashboard.Converters"
+                 Title="{Binding Title}"
+                 TitleCharacterCasing="Normal"
+                 Height="800" Width="1280"
+                 MinHeight="600" MinWidth="900"
+                 WindowStartupLocation="CenterScreen"
+                 Loaded="MainWindow_Loaded"
+                 GlowBrush="{DynamicResource MahApps.Brushes.Accent}"
+                 BorderThickness="1">
+
+    <mah:MetroWindow.IconTemplate>
+        <DataTemplate>
+            <iconPacks:PackIconPhosphorIcons Kind="CubeFocusLight" Margin="2,0,0,0" Foreground="White" Height="24" Width="24" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </DataTemplate>
+    </mah:MetroWindow.IconTemplate>
+
+    <mah:MetroWindow.Resources>
+        <converters:FileExtensionToIconConverter x:Key="FileExtensionToIconConverter" />
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+
+        <!-- DataTemplate for MarkdownViewerViewModel -->
+        <DataTemplate DataType="{x:Type vm:MarkdownViewerViewModel}">
+            <views:MarkdownView />
+        </DataTemplate>
+
+        <!-- DataTemplate for CodeViewerViewModel -->
+        <DataTemplate DataType="{x:Type vm:CodeViewerViewModel}">
+            <views:CodeView />
+        </DataTemplate>
+    </mah:MetroWindow.Resources>
+
+    <mah:MetroWindow.RightWindowCommands>
+        <mah:WindowCommands>
+            <Button Command="{Binding OpenSettingsCommand}" ToolTip="Settings">
+                <iconPacks:PackIconPhosphorIcons Kind="GearSix" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,6,0" />
+            </Button>
+        </mah:WindowCommands>
+    </mah:MetroWindow.RightWindowCommands>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Main content area with splitter -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="280" MinWidth="200" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" MinWidth="400" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Left panel: File Tree -->
+                <views:FileTreeView Grid.Column="0" DataContext="{Binding TreeView}" />
+
+                <!-- Splitter -->
+                <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center"
+                              VerticalAlignment="Stretch" Background="{DynamicResource MahApps.Brushes.Gray8}" />
+
+                <!-- Right panel: Button bar + shared content area -->
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Persistent navigation button bar with inline search -->
+                    <Border Grid.Row="0" Height="35" Margin="10,5,10,0">
+                        <DockPanel LastChildFill="True">
+                            <!-- Navigation buttons (left-aligned, fill remaining space) -->
+                            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                                <Button Command="{Binding NavigateToDashboardCommand}" Height="30" Padding="12,0" Cursor="Hand"
+                                        Background="{Binding SelectedView, Converter={StaticResource ActiveViewToBrush}, ConverterParameter=Dashboard}"
+                                        BorderThickness="0" FocusVisualStyle="{x:Null}" mah:ControlsHelper.FocusBorderBrush="Transparent">
+                                    <StackPanel Orientation="Horizontal">
+                                        <iconPacks:PackIconPhosphorIcons Kind="ChartBar" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                        <TextBlock Text="Dashboard" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Command="{Binding NavigateToDecisionsCommand}" Height="30" Padding="12,0" Cursor="Hand"
+                                        Background="{Binding SelectedView, Converter={StaticResource ActiveViewToBrush}, ConverterParameter=Decisions}"
+                                        BorderThickness="0" FocusVisualStyle="{x:Null}" mah:ControlsHelper.FocusBorderBrush="Transparent">
+                                    <StackPanel Orientation="Horizontal">
+                                        <iconPacks:PackIconPhosphorIcons Kind="Scales" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                        <TextBlock Text="Decisions" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Command="{Binding NavigateToHandoverCommand}" Height="30" Padding="12,0" Cursor="Hand"
+                                        Background="{Binding SelectedView, Converter={StaticResource ActiveViewToBrush}, ConverterParameter=Handover}"
+                                        BorderThickness="0" FocusVisualStyle="{x:Null}" mah:ControlsHelper.FocusBorderBrush="Transparent">
+                                    <StackPanel Orientation="Horizontal">
+                                        <iconPacks:PackIconPhosphorIcons Kind="UserCircle" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                        <TextBlock Text="Handover" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Command="{Binding NavigateToMigrationCommand}" Height="30" Padding="12,0" Cursor="Hand"
+                                        Background="{Binding SelectedView, Converter={StaticResource ActiveViewToBrush}, ConverterParameter=Migration}"
+                                        BorderThickness="0" Focusable="False"
+                                        Visibility="{Binding IsMigrationAvailable, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <iconPacks:PackIconPhosphorIcons Kind="ArrowsLeftRight" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                        <TextBlock Text="Migration" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13" />
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+
+                            <!-- Search field (right-aligned, rounded container) -->
+                            <Border CornerRadius="5" BorderThickness="1"
+                                    BorderBrush="{DynamicResource MahApps.Brushes.Gray6}"
+                                    Background="#EBF5FB" Padding="8,0,0,0"
+                                    VerticalAlignment="Center" Margin="8,0,4,0"
+                                    PreviewMouseLeftButtonDown="SearchBorder_PreviewMouseLeftButtonDown">
+                                <DockPanel LastChildFill="True" Margin="0,0,5,0">
+                                    <iconPacks:PackIconPhosphorIcons DockPanel.Dock="Left" Kind="MagnifyingGlass" Width="14" Height="14"
+                                                                     VerticalAlignment="Center" Margin="0,0,4,0"
+                                                                     Foreground="{DynamicResource MahApps.Brushes.Gray3}" />
+                                    <TextBox x:Name="SearchBox"
+                                             Text="{Binding Search.Query, UpdateSourceTrigger=PropertyChanged}"
+                                             mah:TextBoxHelper.Watermark="Search files..."
+                                             mah:TextBoxHelper.ClearTextButton="True"
+                                             FontSize="12" Padding="2,3" VerticalAlignment="Center"
+                                             BorderThickness="0"
+                                             Background="Transparent"
+                                             GotFocus="SearchBox_GotFocus"
+                                             VerticalContentAlignment="Center"/>
+                                </DockPanel>
+                            </Border>
+                    </DockPanel>
+                    </Border>
+
+                    <!-- Stacked content area (all views alive, one visible at a time) -->
+                    <!-- Each view is wrapped so Visibility binds to MainWindowViewModel (inherited DataContext)
+                         while the inner view gets its own DataContext -->
+                    <Grid Grid.Row="1">
+                        <!-- Content views (collapsed when search overlay is active to avoid WebView2 airspace issues) -->
+                        <Grid Visibility="{Binding Search.IsOverlayVisible, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                            <Border Visibility="{Binding SelectedView, Converter={StaticResource ActiveViewToVisibility}, ConverterParameter=Dashboard}">
+                                <views:DashboardView DataContext="{Binding Dashboard}" />
+                            </Border>
+
+                            <Border Visibility="{Binding SelectedView, Converter={StaticResource ActiveViewToVisibility}, ConverterParameter=Decisions}">
+                                <views:DecisionTrackerView DataContext="{Binding DecisionTracker}" />
+                            </Border>
+                            <Border Visibility="{Binding SelectedView, Converter={StaticResource ActiveViewToVisibility}, ConverterParameter=Handover}">
+                                <views:HandoverView DataContext="{Binding Handover}" />
+                            </Border>
+                            <Border Visibility="{Binding SelectedView, Converter={StaticResource ActiveViewToVisibility}, ConverterParameter=Migration}">
+                                <views:MigrationTrackerView DataContext="{Binding MigrationTracker}" />
+                            </Border>
+                            <Border Visibility="{Binding SelectedView, Converter={StaticResource ActiveViewToVisibility}, ConverterParameter=File}">
+                                <ContentPresenter Content="{Binding ActiveContentViewModel}" />
+                            </Border>
+                        </Grid>
+
+                        <!-- Search results overlay -->
+                        <Border Background="White" Padding="16"
+                                Visibility="{Binding Search.IsOverlayVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <views:SearchView DataContext="{Binding Search}" />
+                        </Border>
+                    </Grid>
+                </Grid>
+        </Grid>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="1" Background="{DynamicResource MahApps.Brushes.Accent}" Padding="2,4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Phase + Day -->
+                <TextBlock Grid.Column="0" Foreground="White" VerticalAlignment="Center" Margin="2,0,0,0">
+                    <Run Text="{Binding Dashboard.CurrentPhase, Mode=OneWay}" />
+                    <Run Text=" | Day " />
+                    <Run Text="{Binding Dashboard.CurrentDay, Mode=OneWay}" />
+                </TextBlock>
+
+                <!-- Center: Quick counts -->
+                <TextBlock Grid.Column="1" Foreground="White" VerticalAlignment="Center"
+                           HorizontalAlignment="Center" Opacity="0.9">
+                    <Run Text="{Binding Dashboard.PendingActionCount, Mode=OneWay}" />
+                    <Run Text=" pending | " />
+                    <Run Text="{Binding Dashboard.OpenDecisionCount, Mode=OneWay}" />
+                    <Run Text=" open decisions | " />
+                    <Run Text="{Binding DecisionTracker.Decisions.Count, Mode=OneWay}" />
+                    <Run Text=" ADRs" />
+                </TextBlock>
+
+                <!-- Right: Last refreshed + error -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right"
+                            VerticalAlignment="Center" Margin="0,0,2,0">
+                    <!-- Error indicator -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,12,0"
+                                Visibility="{Binding Dashboard.ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}">
+                        <iconPacks:PackIconPhosphorIcons Kind="Warning" Width="14" Height="14"
+                                                         Foreground="#FFDC000C" VerticalAlignment="Center" Margin="0,0,4,0" />
+                        <TextBlock Text="{Binding Dashboard.ErrorMessage}" Foreground="#FFDC000C"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                    <!-- Last refreshed time -->
+                    <iconPacks:PackIconPhosphorIcons Kind="Clock" Width="14" Height="14"
+                                                     Foreground="White" VerticalAlignment="Center" Margin="0,0,4,0" Opacity="0.7" />
+                    <TextBlock Foreground="White" VerticalAlignment="Center" Opacity="0.8">
+                        <Run Text="Refreshed " />
+                        <Run Text="{Binding LastRefreshedTime, Mode=OneWay}" />
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</mah:MetroWindow>

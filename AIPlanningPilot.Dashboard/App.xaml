@@ -1,0 +1,88 @@
+<Application x:Class="AIPlanningPilot.Dashboard.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:converters="clr-namespace:AIPlanningPilot.Dashboard.Converters"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+
+             Startup="Application_Startup"
+             ShutdownMode="OnMainWindowClose">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- MahApps.Metro resource dictionaries -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Design tokens: spacing -->
+            <Thickness x:Key="App.Margin.ListItem">0,6,0,6</Thickness>
+            <Thickness x:Key="App.Margin.Section">0,0,0,16</Thickness>
+            <Thickness x:Key="App.Padding.Card">12,8</Thickness>
+            <Thickness x:Key="App.Padding.Header">12,8</Thickness>
+            <CornerRadius x:Key="App.CornerRadius.Badge">3</CornerRadius>
+            <CornerRadius x:Key="App.CornerRadius.Card">6</CornerRadius>
+
+            <!-- Tab header panel background -->
+            <Style x:Key="App.Styles.TabControl" TargetType="TabControl" BasedOn="{StaticResource MahApps.Styles.TabControl.AnimatedSingleRow}">
+                <Setter Property="mah:HeaderedControlHelper.HeaderBackground" Value="{DynamicResource MahApps.Brushes.Gray9}" />
+                <Setter Property="Margin" Value="-3,-3,0,0" />
+            </Style>
+
+            <!-- TabItem hover and selected styling -->
+            <Style x:Key="App.Styles.TabItem" TargetType="TabItem" BasedOn="{StaticResource MahApps.Styles.TabItem}">
+                <Setter Property="Height" Value="35" />
+                <Setter Property="Padding" Value="12,0" />
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Gray8}" />
+                    </Trigger>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Gray9}" />
+                        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <!-- Reusable brushes -->
+            <SolidColorBrush x:Key="App.Brushes.CardBackground" Color="#F5F5F5" />
+
+            <!-- Reusable card control -->
+            <Style x:Key="App.Styles.CardControl" TargetType="HeaderedContentControl">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="HeaderedContentControl">
+                            <Border Background="{StaticResource App.Brushes.CardBackground}"
+                                    CornerRadius="{StaticResource App.CornerRadius.Card}"
+                                    Padding="16,12">
+                                <StackPanel>
+                                    <ContentPresenter ContentSource="Header"
+                                                      TextBlock.FontSize="12"
+                                                      TextBlock.FontWeight="SemiBold"
+                                                      TextBlock.Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                      Margin="0,0,0,10" />
+                                    <Separator Background="{DynamicResource MahApps.Brushes.Gray8}"
+                                               Margin="0,0,0,8" />
+                                    <ContentPresenter />
+                                </StackPanel>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Global converters -->
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+            <converters:ActiveViewToVisibilityConverter x:Key="ActiveViewToVisibility" />
+            <converters:ActiveViewToBrushConverter x:Key="ActiveViewToBrush" />
+            <converters:PhaseStatusToColorConverter x:Key="PhaseStatusToColorConverter" />
+            <converters:PhaseStatusDisplayConverter x:Key="PhaseStatusDisplayConverter" />
+            <converters:PhaseStatusToBackgroundConverter x:Key="PhaseStatusToBackgroundConverter" />
+            <converters:StringToUpperConverter x:Key="StringToUpperConverter" />
+            <converters:PlanHeadingLevelToMarginConverter x:Key="PlanHeadingLevelToMarginConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

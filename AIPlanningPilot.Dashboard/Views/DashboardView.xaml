@@ -1,0 +1,200 @@
+<UserControl x:Class="AIPlanningPilot.Dashboard.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:converters="clr-namespace:AIPlanningPilot.Dashboard.Converters"
+             xmlns:models="clr-namespace:AIPlanningPilot.Dashboard.Models"
+             Loaded="DashboardView_Loaded">
+
+    <UserControl.Resources>
+        <converters:ActionStatusToColorConverter x:Key="ActionStatusToColorConverter" />
+        <converters:ImpactToBrushConverter x:Key="ImpactToBrushConverter" />
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- Loading indicator -->
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Visibility="{Binding IsLoaded, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+            <mah:ProgressRing IsActive="True" Width="60" Height="60" />
+            <TextBlock Text="Loading dashboard..." Margin="0,12,0,0" HorizontalAlignment="Center"
+                       Foreground="{DynamicResource MahApps.Brushes.Gray3}" />
+        </StackPanel>
+
+        <!-- Content: single column, vertically stacked -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10"
+                      Visibility="{Binding IsLoaded, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel>
+                <!-- Phase progress chain (card style) -->
+                <ItemsControl ItemsSource="{Binding PhaseProgress}" Margin="-3,0,0,16">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="1" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type models:PhaseProgressItem}">
+                            <Border CornerRadius="6" Padding="8,10" Margin="3,0"
+                                    Background="{Binding Status, Converter={StaticResource PhaseStatusToBackgroundConverter}}"
+                                    ToolTipService.InitialShowDelay="0"
+                                    Cursor="Hand">
+                                <Border.InputBindings>
+                                    <MouseBinding MouseAction="LeftClick"
+                                                  Command="{Binding DataContext.OpenPhaseDocumentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                  CommandParameter="{Binding}" />
+                                </Border.InputBindings>
+                                <StackPanel HorizontalAlignment="Center">
+                                    <!-- Phase name -->
+                                    <TextBlock Text="{Binding PhaseName, Converter={StaticResource StringToUpperConverter}}"
+                                               FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                               HorizontalAlignment="Center" TextAlignment="Center"
+                                               TextWrapping="Wrap" Margin="0,0,0,6" />
+                                    <!-- Colored circle with number -->
+                                    <Border Width="32" Height="32" CornerRadius="16"
+                                            HorizontalAlignment="Center" Margin="0,0,0,6"
+                                            Background="{Binding Status, Converter={StaticResource PhaseStatusToColorConverter}}">
+                                        <TextBlock Text="{Binding Index}" FontSize="14" FontWeight="Bold"
+                                                   Foreground="White"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <!-- Summary -->
+                                    <TextBlock Text="{Binding Summary}" FontSize="10"
+                                               HorizontalAlignment="Center" TextAlignment="Center"
+                                               TextWrapping="Wrap" MaxHeight="82"
+                                               Foreground="{DynamicResource MahApps.Brushes.Gray2}" />
+                                </StackPanel>
+                                <Border.ToolTip>
+                                    <ToolTip Padding="0" BorderThickness="0" Background="Transparent" MaxWidth="420">
+                                        <Border CornerRadius="6" Background="#FF484850" BorderBrush="#FF5A5A62"
+                                                BorderThickness="1" Padding="12,10" MinWidth="280">
+                                            <StackPanel>
+                                                <!-- Phase name + status -->
+                                                <DockPanel Margin="0,0,0,4">
+                                                    <TextBlock DockPanel.Dock="Right" Text="{Binding Status}"
+                                                               FontSize="11" FontWeight="SemiBold"
+                                                               Foreground="{Binding Status, Converter={StaticResource PhaseStatusToColorConverter}}" />
+                                                    <TextBlock Text="{Binding PhaseName}" FontSize="14"
+                                                               FontWeight="Bold" Foreground="White" />
+                                                </DockPanel>
+                                                <!-- Summary -->
+                                                <TextBlock Text="{Binding Summary}" FontSize="11"
+                                                           Foreground="#FF9E9E9E" TextWrapping="Wrap" Margin="0,0,0,4" />
+                                                <!-- Plan headings -->
+                                                <Separator Background="#FF5A5A62" Margin="0,4,0,6"
+                                                           Visibility="{Binding PlanHeadings.Count, Converter={StaticResource NullToVisibilityConverter}}" />
+                                                <ItemsControl ItemsSource="{Binding PlanHeadings}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate DataType="{x:Type models:PlanHeading}">
+                                                            <StackPanel Orientation="Horizontal" Margin="{Binding Level, Converter={StaticResource PlanHeadingLevelToMarginConverter}}">
+                                                                <iconPacks:PackIconPhosphorIcons Kind="CaretRight" Width="10" Height="10"
+                                                                    VerticalAlignment="Center" Margin="0,0,4,0"
+                                                                    Foreground="{DynamicResource MahApps.Brushes.Accent}" />
+                                                                <TextBlock Text="{Binding Text}" FontSize="11"
+                                                                           Foreground="White" TextWrapping="Wrap" />
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </Border>
+                                    </ToolTip>
+                                </Border.ToolTip>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- ToDos (from handover) -->
+                <HeaderedContentControl Style="{StaticResource App.Styles.CardControl}"
+                                        Header="{Binding HandoverDeveloper}"
+                                        HeaderStringFormat="TODOS {0}"
+                                        Margin="0,0,3,16">
+                    <ItemsControl ItemsSource="{Binding HandoverNextItems}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="0,4">
+                                    <iconPacks:PackIconPhosphorIcons Kind="ArrowRight" Width="12" Height="12"
+                                                                      VerticalAlignment="Center" Margin="0,0,6,0"
+                                                                      Foreground="{DynamicResource MahApps.Brushes.Accent}" />
+                                    <TextBlock Text="{Binding}" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </HeaderedContentControl>
+
+                <!-- Next Actions + Open Decisions side by side -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Next Actions -->
+                    <HeaderedContentControl Grid.Column="0" Style="{StaticResource App.Styles.CardControl}"
+                                            Header="NEXT ACTIONS">
+                        <ItemsControl ItemsSource="{Binding NextActions}" Grid.IsSharedSizeScope="True">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type models:ActionItem}">
+                                    <Border BorderThickness="0,0,0,1" BorderBrush="{DynamicResource MahApps.Brushes.Gray8}" Padding="0,6">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="ActionStatus" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="ActionOwner" />
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Column="0" CornerRadius="3" Padding="8,2" Margin="0,0,8,0"
+                                                    VerticalAlignment="Center"
+                                                    Background="{Binding Status, Converter={StaticResource ActionStatusToColorConverter}}">
+                                                <TextBlock Text="{Binding Status}" FontSize="11" Foreground="White" FontWeight="SemiBold" />
+                                            </Border>
+                                            <TextBlock Grid.Column="1" Text="{Binding Description}"
+                                                       VerticalAlignment="Center" TextWrapping="Wrap" />
+                                            <TextBlock Grid.Column="2" Text="{Binding Owner}" FontSize="11"
+                                                       Foreground="{DynamicResource MahApps.Brushes.Gray3}"
+                                                       VerticalAlignment="Center" Margin="8,0,0,0" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </HeaderedContentControl>
+
+                    <!-- Open Decisions -->
+                    <HeaderedContentControl Grid.Column="2" Style="{StaticResource App.Styles.CardControl}"
+                                            Header="OPEN DECISIONS" Margin="0,0,3,0">
+                        <ItemsControl ItemsSource="{Binding OpenDecisions}" Grid.IsSharedSizeScope="True">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type models:OpenDecision}">
+                                    <Border BorderThickness="0,0,0,1"
+                                            BorderBrush="{DynamicResource MahApps.Brushes.Gray8}" Padding="0,6">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="DecisionWhen" />
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="DecisionImpact" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding Description}"
+                                                       TextWrapping="Wrap" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="1" Text="{Binding When}" FontSize="11"
+                                                       Foreground="{DynamicResource MahApps.Brushes.Gray3}"
+                                                       VerticalAlignment="Center" Margin="8,0" />
+                                            <Border Grid.Column="2" CornerRadius="3" Padding="6,2"
+                                                    VerticalAlignment="Center"
+                                                    Background="{Binding Impact, Converter={StaticResource ImpactToBrushConverter}}">
+                                                <TextBlock Text="{Binding Impact}" FontSize="11" FontWeight="SemiBold"
+                                                           Foreground="{Binding Impact, Converter={StaticResource ImpactToBrushConverter}, ConverterParameter=Foreground}" />
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </HeaderedContentControl>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

@@ -45,16 +45,17 @@ a persistent memory layer built on plain Markdown files.
 - Node.js on PATH (required by hook scripts)
 - Git Bash (on Windows)
 
-### Step 1 — Set up the two repos
+### Step 1 -- Set up the two repos
 
 You need two repositories: one for your project's source code, one for planning.
 
 ```
-MyProject/              ← your source code (existing or new)
-MyProject-planning/     ← copy of this template
+MyProject/              <- your source code (existing or new)
+MyProject-planning/     <- clone of this repo
 ```
 
-Copy (or clone) this template as your planning repo. Keep the directory structure as-is.
+Clone this repo as your planning repo. The planning framework content is in the
+`AIPlanningPilot/` subfolder -- set `${PLANNING_REPO}` to point there.
 
 ### Step 2 — Onboard (`/onboard`)
 
@@ -135,6 +136,71 @@ This loads your project state, syncs the latest template updates, presents a bri
 
 One-time setup is `/onboard` (from planning repo) then `/initial-planning` (from project repo).
 The daily cycle is `/moin` → work → `/ciao`, always from the project repo.
+
+---
+
+## Solution Structure
+
+This repository is organized as a .NET solution with three projects:
+
+```
+AIPlanningPilot/                      (repo root)
+├── AIPlanningPilot.slnx              Solution file (3 projects)
+├── NuGet.Config                      NuGet package sources
+├── Readme.md                         This file
+├── LICENSE                           MIT License
+│
+├── AIPlanningPilot/                  Planning framework (NoTargets project)
+│   ├── AIPlanningPilot.csproj        Includes .md, .sh, .json, .drawio files
+│   ├── main/                         Core orchestration (STATE.md, PLAN.md, CONFIG.md)
+│   ├── plan/                         Phase-specific plan files
+│   ├── decisions/                    Architecture Decision Records
+│   ├── handovers/                    Per-developer handover files
+│   ├── analysis/                     Codebase analysis documents
+│   ├── documents/                    Project-specific documentation
+│   ├── archive/                      Historical data and backups
+│   ├── scripts/                      Utility scripts (sync, etc.)
+│   ├── claude-backup/                Template source of truth for .claude/
+│   └── tests/                        Hook validation tests (bash)
+│
+├── AIPlanningPilot.Dashboard/        WPF desktop dashboard (MahApps.Metro)
+│   ├── AIPlanningPilot.Dashboard.csproj
+│   ├── Services/                     Parsers and business logic
+│   ├── ViewModels/                   MVVM view models (CommunityToolkit.Mvvm)
+│   ├── Views/                        XAML views
+│   ├── Models/                       Domain models
+│   ├── Converters/                   WPF value converters
+│   └── Assets/                       Icons, themes, embedded resources
+│
+└── AIPlanningPilot.Dashboard.Tests/  Unit tests (NUnit + FluentAssertions + Moq)
+    ├── AIPlanningPilot.Dashboard.Tests.csproj
+    ├── Services/                     Service tests
+    ├── Converters/                   Converter tests
+    └── TestData/                     Test fixtures
+```
+
+### Building
+
+```bash
+# Build the entire solution
+dotnet build AIPlanningPilot.slnx
+
+# Run tests
+dotnet test AIPlanningPilot.slnx
+
+# Run the Dashboard
+dotnet run --project AIPlanningPilot.Dashboard/AIPlanningPilot.Dashboard.csproj
+```
+
+**Prerequisites for building:** .NET 8.0 SDK, Windows (WPF projects require Windows)
+
+### Dashboard
+
+The Dashboard is a WPF application that visualizes the planning framework's state:
+- Renders Markdown files (STATE.md, PLAN.md, decision records, handovers)
+- Shows migration progress, action history, and KPI summaries
+- Provides full-text search across all planning documents
+- Watches files for live updates
 
 ---
 
@@ -223,7 +289,7 @@ The `.claude/` directory in the project repo is typically git-ignored (contains 
 The `claude-backup/` directory here is the single source of truth — a developer-agnostic template.
 `/onboard` and `/moin` deploy it to `.claude/`, replacing variables with literal paths.
 
-See [CONFIG.md](main/CONFIG.md) for path variable definitions and setup instructions.
+See [CONFIG.md](AIPlanningPilot/main/CONFIG.md) for path variable definitions and setup instructions.
 
 ### Commands
 
@@ -241,59 +307,70 @@ See [CONFIG.md](main/CONFIG.md) for path variable definitions and setup instruct
 
 ### Directory Structure
 
+The planning framework lives inside the `AIPlanningPilot/` subfolder.
+When using `${PLANNING_REPO}`, point it to the `AIPlanningPilot/` subfolder (not the repo root).
+
 ```
-planning-repo/
-├── README.md                  ← You are here
+AIPlanningPilot/                       Planning framework (${PLANNING_REPO})
+├── AIPlanningPilot.csproj             NoTargets project — includes docs in VS
 │
-├── main/                      Core orchestration documents
-│   ├── PLAN.md                Table of contents — links to plan/ files
-│   ├── STATE.md               Current state — phase, next actions, open decisions
-│   └── CONFIG.md              Path variable definitions (per-developer)
+├── main/                              Core orchestration documents
+│   ├── PLAN.md                        Table of contents — links to plan/ files
+│   ├── STATE.md                       Current state — phase, next actions, open decisions
+│   └── CONFIG.md                      Path variable definitions (per-developer)
 │
-├── handovers/                 Per-developer handover files
-│   └── handover-{name}.md    Handover notes — one per developer
+├── handovers/                         Per-developer handover files
+│   └── handover-{name}.md            Handover notes — one per developer
 │
-├── plan/                      Split plan files (context window optimized)
-│   ├── overview.md            Vision, macro phases, risk register
-│   └── phase-{N}-{slug}.md   One file per phase
+├── plan/                              Split plan files (context window optimized)
+│   ├── overview.md                    Vision, macro phases, risk register
+│   └── phase-{N}-{slug}.md           One file per phase
 │
-├── decisions/                 Architecture Decision Records (ADRs)
-│   ├── INDEX.md               Decisions index
-│   └── {NNN}-{slug}.md       Individual decision records
+├── decisions/                         Architecture Decision Records (ADRs)
+│   ├── INDEX.md                       Decisions index
+│   └── {NNN}-{slug}.md               Individual decision records
 │
-├── analysis/                  Codebase analysis documents
+├── analysis/                          Codebase analysis documents
 │
-├── archive/                   Historical data (not loaded during /moin)
-│   ├── completed-actions.md   Actions completed via /ciao
-│   └── state-snapshots/       Timestamped STATE.md backups
+├── archive/                           Historical data (not loaded during /moin)
+│   ├── completed-actions.md           Actions completed via /ciao
+│   └── state-snapshots/               Timestamped STATE.md backups
 │
-├── documents/                 Project-specific documents
+├── documents/                         Project-specific documents
 │
-├── scripts/                   Utility scripts (sync, etc.)
+├── scripts/                           Utility scripts (sync, etc.)
 │
-├── claude-backup/             Git-tracked mirror of project/.claude/
-│   ├── settings.json          Hook registrations
-│   ├── commands/              Claude Code slash commands (9 commands)
-│   ├── hooks/                 Claude Code hooks (validation & safety, 8 scripts)
-│   └── skills/                Claude Code skills (Angular, build-fix, etc.)
+├── claude-backup/                     Git-tracked mirror of project/.claude/
+│   ├── settings.json                  Hook registrations
+│   ├── commands/                      Claude Code slash commands (10 commands)
+│   ├── hooks/                         Claude Code hooks (validation & safety, 8 scripts)
+│   └── skills/                        Claude Code skills (Angular, MahApps, build-fix, etc.)
 │
-└── tests/                     Automated tests
-    └── hooks/                 Hook validation tests (bash)
-        ├── run-tests.sh       Entry point
-        ├── test-helper.sh     Shared test infrastructure
-        ├── test-*.sh          Individual test files
-        └── fixtures/          Test fixture files
+└── tests/                             Automated tests
+    └── hooks/                         Hook validation tests (bash)
+        ├── run-tests.sh               Entry point
+        ├── test-helper.sh             Shared test infrastructure
+        ├── test-*.sh                  Individual test files
+        └── fixtures/                  Test fixture files
 ```
 
 ### Testing
 
-The hooks have automated bash tests in `tests/hooks/`. Run them from any bash shell:
+#### Hook tests (bash)
+
+The hooks have automated bash tests in `AIPlanningPilot/tests/hooks/`. Run them from any bash shell:
 
 ```bash
-cd tests/hooks
+cd AIPlanningPilot/tests/hooks
 bash run-tests.sh                    # Run all tests
 bash run-tests.sh validate-state     # Run only matching test files
 ```
 
-Tests use temp directories with isolated `env.sh` — they don't touch real repo files.
+Tests use temp directories with isolated `env.sh` -- they don't touch real repo files.
 Fixture files in `fixtures/` use `%%TODAY%%` placeholders replaced at runtime.
+
+#### Dashboard tests (.NET)
+
+```bash
+dotnet test AIPlanningPilot.slnx
+```

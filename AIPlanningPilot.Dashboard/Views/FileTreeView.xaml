@@ -1,0 +1,49 @@
+<UserControl x:Class="AIPlanningPilot.Dashboard.Views.FileTreeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:vm="clr-namespace:AIPlanningPilot.Dashboard.ViewModels"
+             xmlns:converters="clr-namespace:AIPlanningPilot.Dashboard.Converters">
+
+    <UserControl.Resources>
+        <converters:FileExtensionToIconConverter x:Key="FileExtensionToIconConverter" />
+    </UserControl.Resources>
+
+    <DockPanel>
+        <!-- Tree header -->
+        <Border DockPanel.Dock="Top" Height="40" Padding="12,0,12,0" Background="{DynamicResource MahApps.Brushes.Gray9}">
+            <TextBlock Text="Project Files" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" />
+        </Border>
+
+        <!-- File tree -->
+        <TreeView ItemsSource="{Binding RootNodes}" BorderThickness="0" Padding="4">
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                    <Setter Property="Padding" Value="4,2" />
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Accent4}" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </TreeView.ItemContainerStyle>
+
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type vm:FileTreeNodeViewModel}"
+                                          ItemsSource="{Binding Children}">
+                    <StackPanel Orientation="Horizontal" Margin="2,2">
+                        <iconPacks:PackIconPhosphorIcons
+                            Kind="{Binding Converter={StaticResource FileExtensionToIconConverter}}"
+                            Width="16" Height="16"
+                            VerticalAlignment="Center"
+                            Margin="0,0,6,0"
+                            Foreground="{DynamicResource MahApps.Brushes.Accent}" />
+                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+    </DockPanel>
+</UserControl>

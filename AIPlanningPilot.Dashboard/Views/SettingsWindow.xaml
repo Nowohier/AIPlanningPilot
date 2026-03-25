@@ -1,0 +1,46 @@
+<mah:MetroWindow x:Class="AIPlanningPilot.Dashboard.Views.SettingsWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                 xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                 Title="Settings"
+                 TitleCharacterCasing="Normal"
+                 Height="220" Width="400"
+                 ResizeMode="NoResize"
+                 WindowStartupLocation="CenterOwner"
+                 ShowInTaskbar="False"
+                 GlowBrush="{DynamicResource MahApps.Brushes.Accent}"
+                 BorderThickness="1">
+
+    <mah:MetroWindow.IconTemplate>
+        <DataTemplate>
+            <iconPacks:PackIconPhosphorIcons Kind="GearSix" Margin="2,0,0,0" Foreground="White" Height="20" Width="20"
+                                             HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </DataTemplate>
+    </mah:MetroWindow.IconTemplate>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Theme selection -->
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Markdown Theme" FontWeight="SemiBold" Margin="0,0,0,8" />
+            <ComboBox ItemsSource="{Binding AvailableThemes}"
+                      SelectedItem="{Binding SelectedThemeName}"
+                      HorizontalAlignment="Stretch" />
+        </StackPanel>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Cancel" Command="{Binding CancelCommand}"
+                    Width="80" Margin="0,0,8,0"
+/>
+            <Button Content="Save" Command="{Binding SaveCommand}"
+                    Width="80" />
+        </StackPanel>
+    </Grid>
+</mah:MetroWindow>

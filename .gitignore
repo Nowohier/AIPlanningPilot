@@ -1,5 +1,11 @@
 # Visual Studio
 .vs/
+*.user
+*.suo
+
+# .NET build artifacts
+bin/
+obj/
 
 # OS files
 .DS_Store

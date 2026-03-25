@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="AIPlanningPilot\AIPlanningPilot.csproj" />
+  <Project Path="AIPlanningPilot.Dashboard\AIPlanningPilot.Dashboard.csproj" />
+  <Project Path="AIPlanningPilot.Dashboard.Tests\AIPlanningPilot.Dashboard.Tests.csproj" />
+</Solution>
