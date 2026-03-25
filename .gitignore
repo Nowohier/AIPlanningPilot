@@ -7,6 +7,12 @@
 bin/
 obj/
 
+# Claude Code deployed config (created by sync-claude.mjs from claude-backup/)
+.claude/*
+# Keep the bootstrap onboard command (needed for fresh clones)
+!.claude/commands/
+!.claude/commands/onboard.md
+
 # OS files
 .DS_Store
 Thumbs.db
