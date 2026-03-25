@@ -58,7 +58,7 @@ function writeClaudeMd(dir, { developer = 'TestDev', projectRepo = 'M:\\TestProj
 
 describe('winToBashPath', () => {
     it('converts a standard Windows path', () => {
-        assert.equal(winToBashPath('M:\\CODE_COPY\\MyOrg'), '/m/Projects/MyApp');
+        assert.equal(winToBashPath('M:\\Projects\\MyApp'), '/m/Projects/MyApp');
     });
 
     it('handles a different drive letter', () => {
@@ -91,20 +91,20 @@ describe('parseConfig', () => {
     it('parses a valid CLAUDE.md', () => {
         writeClaudeMd(tempDir, {
             developer: 'Chris',
-            projectRepo: 'M:\\CODE_COPY\\MyOrg\\ExampleProject',
-            planningRepo: 'M:\\CODE_COPY\\MyOrg\\ExampleProject\\restructuring',
+            projectRepo: 'M:\\CODE_COPY\\ExampleOrg\\ExampleProject',
+            planningRepo: 'M:\\CODE_COPY\\ExampleOrg\\ExampleProject\\restructuring',
         });
 
         const config = parseConfig(join(tempDir, '.claude', 'CLAUDE.md'));
         assert.equal(config.developer, 'Chris');
-        assert.equal(config.projectRepo, 'M:\\CODE_COPY\\MyOrg\\ExampleProject');
-        assert.equal(config.planningRepo, 'M:\\CODE_COPY\\MyOrg\\ExampleProject\\restructuring');
+        assert.equal(config.projectRepo, 'M:\\CODE_COPY\\ExampleOrg\\ExampleProject');
+        assert.equal(config.planningRepo, 'M:\\CODE_COPY\\ExampleOrg\\ExampleProject\\restructuring');
     });
 
     it('derives bash paths correctly', () => {
         writeClaudeMd(tempDir, {
-            projectRepo: 'M:\\CODE_COPY\\MyOrg\\ExampleProject',
-            planningRepo: 'M:\\CODE_COPY\\MyOrg\\ExampleProject\\restructuring',
+            projectRepo: 'M:\\CODE_COPY\\ExampleOrg\\ExampleProject',
+            planningRepo: 'M:\\CODE_COPY\\ExampleOrg\\ExampleProject\\restructuring',
         });
 
         const config = parseConfig(join(tempDir, '.claude', 'CLAUDE.md'));
@@ -149,8 +149,8 @@ describe('syncCommands', () => {
     let targetDir;
     const config = {
         developer: 'Chris',
-        projectRepo: 'M:\\CODE_COPY\\MyOrg\\ExampleProject',
-        planningRepo: 'M:\\CODE_COPY\\MyOrg\\ExampleProject\\restructuring',
+        projectRepo: 'M:\\CODE_COPY\\ExampleOrg\\ExampleProject',
+        planningRepo: 'M:\\CODE_COPY\\ExampleOrg\\ExampleProject\\restructuring',
     };
 
     beforeEach(() => {
@@ -204,8 +204,8 @@ Some body text.
         syncCommands(config, backupDir, targetDir);
 
         const result = readFileSync(join(targetDir, 'test.md'), 'utf-8');
-        assert.ok(result.includes('M:\\CODE_COPY\\MyOrg\\ExampleProject\\restructuring\\main\\STATE.md'));
-        assert.ok(result.includes('M:\\CODE_COPY\\MyOrg\\ExampleProject\\CLAUDE.md'));
+        assert.ok(result.includes('M:\\CODE_COPY\\ExampleOrg\\ExampleProject\\restructuring\\main\\STATE.md'));
+        assert.ok(result.includes('M:\\CODE_COPY\\ExampleOrg\\ExampleProject\\CLAUDE.md'));
         assert.ok(!result.includes('${PROJECT_REPO}'));
         assert.ok(!result.includes('${PLANNING_REPO}'));
     });
@@ -258,7 +258,7 @@ Some body text.
 
         const result = readFileSync(join(targetDir, 'test.md'), 'utf-8');
         // The real reference should be substituted
-        assert.ok(result.includes('M:\\CODE_COPY\\MyOrg\\ExampleProject/some/path'));
+        assert.ok(result.includes('M:\\CODE_COPY\\ExampleOrg\\ExampleProject/some/path'));
         // The escaped references should be preserved as literal ${...}
         assert.ok(result.includes('`${PROJECT_REPO}`'));
         assert.ok(result.includes('`${PLANNING_REPO}`'));
@@ -271,7 +271,7 @@ Some body text.
         syncCommands(config, backupDir, targetDir);
 
         const result = readFileSync(join(targetDir, 'tdd.md'), 'utf-8');
-        assert.ok(result.includes('M:\\CODE_COPY\\MyOrg\\ExampleProject'));
+        assert.ok(result.includes('M:\\CODE_COPY\\ExampleOrg\\ExampleProject'));
         assert.ok(!result.includes('${PROJECT_REPO}'));
     });
 
@@ -624,7 +624,7 @@ describe('writeProjectConfig', () => {
         const planningRepo = join(tempDir, 'planning');
         mkdirSync(join(planningRepo, 'main'), { recursive: true });
 
-        const result = writeProjectConfig(planningRepo, 'M:\\CODE_COPY\\MyOrg\\ExampleProject');
+        const result = writeProjectConfig(planningRepo, 'M:\\CODE_COPY\\ExampleOrg\\ExampleProject');
 
         assert.equal(result.written, true);
         const config = JSON.parse(readFileSync(join(planningRepo, 'main', 'project.json'), 'utf-8'));

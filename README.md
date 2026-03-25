@@ -1,39 +1,34 @@
+# AI Planning Pilot
 
-![License](https://img.shields.io/github/license/Nowohier/AIPlanningPilot)
-![GitHub stars](https://img.shields.io/github/stars/Nowohier/AIPlanningPilot)
+A file-based project management framework for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) sessions.
+Manages context, state, and decisions across sessions so each new conversation picks up where the last one left off.
 
-# AI-Assisted Project Management Framework
+Claude Code sessions are stateless - every new conversation starts from scratch.
+On real projects you lose track of what was decided, what's in progress, and what to do next.
+This framework fixes that with a persistent state layer built on plain Markdown files.
 
-A file-based project management framework for Claude Code sessions.
-Manages context, state, and decisions across sessions so each new conversation
-picks up exactly where the last one left off.
+**Use it when:**
 
-### Why this exists
+- Your project spans multiple sessions or days
+- You need structured progress tracking without heavyweight tools
+- Design decisions need to be recorded with context and rationale (ADRs)
+- Multiple developers share a codebase and need independent handover notes
 
-Claude Code sessions are stateless — every new conversation starts from scratch.
-On small tasks that's fine, but on real projects you lose track of what was decided,
-what's in progress, and what to do next. This framework fixes that by giving Claude
-a persistent memory layer built on plain Markdown files.
+```mermaid
+flowchart LR
+    DEV["Developer"]
+    CLI["Claude Code CLI"]
+    PROJ["Project Repo<br/>(source code)"]
+    PLAN["AIPlanningPilot<br/>(state, plans, decisions,<br/>handovers)"]
+    DASH["Dashboard<br/>(WPF app)"]
 
-### When to use it
-
-- **Multi-day projects** — anything that takes more than a single session to complete
-- **Solo developers** who want structured progress tracking without heavyweight tools
-- **Small teams** sharing a codebase, where each developer needs their own handover notes without merge conflicts
-- **Projects with important design decisions** that need to be recorded with context and rationale (ADRs)
-- **Complex refactors or migrations** where losing track of the current phase means wasted effort
-
-### What you get
-
-- **Session continuity** — `/moin` loads your state and handover notes; `/ciao` writes them back. Every session resumes where the last one ended.
-- **Selective context loading** — only the current phase and relevant files are loaded, keeping Claude's context window lean (~20 KB) instead of dumping everything at once.
-- **Structured state tracking** — a single `STATE.md` file is the source of truth for phase, next actions, open decisions, and blockers.
-- **Decision records on the fly** — `/decision` captures what was decided and why, with sequential numbering and validation. No more "why did we do it this way?" three weeks later.
-- **Per-developer handovers** — each developer owns their own handover file. No coordination, no merge conflicts.
-- **Automatic validation** — hooks check STATE.md structure, decision record format, and template integrity after every write. Errors are caught immediately, not in the next session.
-- **Self-healing setup** — `/moin` syncs the latest commands and hooks from the template on every session start. Updates are automatic.
-- **Built-in diagnostics** — `/healthcheck` runs 13 environment checks and tells you exactly what's broken and how to fix it.
-- **Safe by default** — state backups before every update, archive of completed actions, and guards against accidental hardcoded paths in templates.
+    DEV -->|slash commands| CLI
+    CLI -->|reads & writes code| PROJ
+    CLI -->|reads & writes state| PLAN
+    PLAN -->|deploys commands<br/>& hooks to .claude/| PROJ
+    DEV -->|views| DASH
+    DASH -->|watches & reads| PLAN
+```
 
 ---
 
@@ -45,7 +40,7 @@ a persistent memory layer built on plain Markdown files.
 - Node.js on PATH (required by hook scripts)
 - Git Bash (on Windows)
 
-### Step 1 -- Set up the two repos
+### Setup
 
 You need two repositories: one for your project's source code, one for planning.
 
@@ -55,162 +50,39 @@ MyProject-planning/     <- clone of this repo
 ```
 
 Clone this repo as your planning repo. The planning framework content is in the
-`AIPlanningPilot/` subfolder -- set `${PLANNING_REPO}` to point there.
+`AIPlanningPilot/` subfolder - set `${PLANNING_REPO}` to point there.
 
-### Step 2 — Onboard (`/onboard`)
+**Step 1** - Open Claude Code **in the planning repo** and run `/onboard`.
+The wizard configures paths, identity, deploys commands and hooks to your project repo's `.claude/`, and creates your personal handover file.
 
-Open Claude Code **in the planning repo** (e.g., `MyProject-planning/`), then type:
+**Step 2** - Open Claude Code **in your project repo** and run `/initial-planning`.
+The wizard helps you define phases, then generates `STATE.md`, `PLAN.md`, plan files, and `decisions/INDEX.md`.
 
-```
-/onboard
-```
-
-The wizard asks three questions:
-1. Your developer name
-2. Path to your project repo
-3. Path to your planning repo
-
-It then configures everything automatically:
-- Sets up `.claude/CLAUDE.md` with your identity and paths
-- Deploys all commands and hooks from the planning template to your **project repo's** `.claude/`
-- Replaces `${PROJECT_REPO}` / `${PLANNING_REPO}` variables with your literal paths
-- Creates your personal handover file
-
-### Step 3 — Bootstrap the project (`/initial-planning`)
-
-Close the onboarding session. Open Claude Code **in your project repo** (e.g., `MyProject/`), then run:
+**Step 3** - From now on, every session starts with `/moin` and ends with `/ciao`.
 
 ```
-/initial-planning
-```
-
-This interactive wizard helps you define your project:
-1. **Project info** — name, description, goals, codebase overview
-2. **Phases** — choose between guided phase design, manual entry, or a minimal single phase
-3. **File creation** — generates `STATE.md`, `PLAN.md`, `plan/overview.md`, one `plan/phase-*.md` per phase, and `decisions/INDEX.md`
-
-After this, your planning repo is fully initialized and ready to use.
-
-### Step 4 — Start working (`/moin`)
-
-From now on, every session starts with:
-
-```
-/moin
-```
-
-This loads your project state, syncs the latest template updates, presents a briefing with your handover notes, and asks what you'd like to work on.
-
-### Daily workflow
-
-```
-/moin                   Start of session — loads state, presents briefing
+/moin                   Start of session - loads state, presents briefing
   ... work ...
   /decision             Record a decision (anytime)
   /checkpoint           Save mid-session progress (optional)
   /refresh              Re-anchor context if session runs long (optional)
   ... work ...
-/ciao                   End of session — updates state, writes handover
+/ciao                   End of session - updates state, writes handover
 ```
 
-### After a multi-day gap
-
 ```
-/recap                  Broader catch-up — shows what changed since you left
-```
-
-### If something feels off
-
-```
-/healthcheck            Runs 13 environment checks, reports PASS/WARN/FAIL
-```
-
-### The lifecycle at a glance
-
-```
-(planning repo)  /onboard  →  (project repo)  /initial-planning → /moin → work → /ciao
-                                                        ↑                |
-                                                        └────────────────┘
+(planning repo)  /onboard  ->  (project repo)  /initial-planning -> /moin -> work -> /ciao
+                                                        ^                |
+                                                        +----------------+
                                                            (next session)
 ```
 
-One-time setup is `/onboard` (from planning repo) then `/initial-planning` (from project repo).
-The daily cycle is `/moin` → work → `/ciao`, always from the project repo.
-
 ---
 
-## Solution Structure
+## How It Works
 
-This repository is organized as a .NET solution with three projects:
-
-```
-AIPlanningPilot/                      (repo root)
-├── AIPlanningPilot.slnx              Solution file (3 projects)
-├── NuGet.Config                      NuGet package sources
-├── Readme.md                         This file
-├── LICENSE                           MIT License
-│
-├── AIPlanningPilot/                  Planning framework (NoTargets project)
-│   ├── AIPlanningPilot.csproj        Includes .md, .sh, .json, .drawio files
-│   ├── main/                         Core orchestration (STATE.md, PLAN.md, CONFIG.md)
-│   ├── plan/                         Phase-specific plan files
-│   ├── decisions/                    Architecture Decision Records
-│   ├── handovers/                    Per-developer handover files
-│   ├── analysis/                     Codebase analysis documents
-│   ├── documents/                    Project-specific documentation
-│   ├── archive/                      Historical data and backups
-│   ├── scripts/                      Utility scripts (sync, etc.)
-│   ├── claude-backup/                Template source of truth for .claude/
-│   └── tests/                        Hook validation tests (bash)
-│
-├── AIPlanningPilot.Dashboard/        WPF desktop dashboard (MahApps.Metro)
-│   ├── AIPlanningPilot.Dashboard.csproj
-│   ├── Services/                     Parsers and business logic
-│   ├── ViewModels/                   MVVM view models (CommunityToolkit.Mvvm)
-│   ├── Views/                        XAML views
-│   ├── Models/                       Domain models
-│   ├── Converters/                   WPF value converters
-│   └── Assets/                       Icons, themes, embedded resources
-│
-└── AIPlanningPilot.Dashboard.Tests/  Unit tests (NUnit + FluentAssertions + Moq)
-    ├── AIPlanningPilot.Dashboard.Tests.csproj
-    ├── Services/                     Service tests
-    ├── Converters/                   Converter tests
-    └── TestData/                     Test fixtures
-```
-
-### Building
-
-```bash
-# Build the entire solution
-dotnet build AIPlanningPilot.slnx
-
-# Run tests
-dotnet test AIPlanningPilot.slnx
-
-# Run the Dashboard
-dotnet run --project AIPlanningPilot.Dashboard/AIPlanningPilot.Dashboard.csproj
-```
-
-**Prerequisites for building:** .NET 8.0 SDK, Windows (WPF projects require Windows)
-
-### Dashboard
-
-The Dashboard is a WPF application that visualizes the planning framework's state:
-- Renders Markdown files (STATE.md, PLAN.md, decision records, handovers)
-- Shows migration progress, action history, and KPI summaries
-- Provides full-text search across all planning documents
-- Watches files for live updates
-
----
-
-## Reference
-
-### How It Works
-
-The framework manages context across Claude Code sessions using a file-based
-state machine. Each session starts by reading state, works on tasks, and ends
-by writing state back.
+The framework manages context across Claude Code sessions using a file-based state machine.
+Each session reads state, works on tasks, and writes state back.
 
 ```mermaid
 flowchart TD
@@ -268,97 +140,103 @@ flowchart TD
 
 ### Key Concepts
 
-**STATE.md** is the single source of truth for current project state.
-Every session reads it first. It stays lean — historical data lives in `archive/`.
+**STATE.md** is the single source of truth for current project state. Every session reads it first. Historical data lives in `archive/`.
 
-**Handover files** are per-developer. Each developer owns their file exclusively —
-no merge conflicts, no coordination needed.
+**Handover files** are per-developer. Each developer owns their file exclusively - no merge conflicts, no coordination needed.
 
-**Selective context loading**: `/moin` reads `plan/overview.md` and selectively
-loads phase plans, analysis, and decision files based on today's actions.
-File discovery uses glob patterns — there is no static file inventory.
+**Selective context loading**: `/moin` loads only the current phase and relevant files, keeping Claude's context window lean (~20 KB) instead of dumping everything at once.
 
-### Two-Repo Model
-
-This framework uses two repositories:
-
-- **Project repo** (`${PROJECT_REPO}`): Your source code. The `.claude/` directory here contains the deployed (personalized) commands and hooks.
-- **Planning repo** (`${PLANNING_REPO}`): This repo. Contains the state, plans, decisions, and the template (`claude-backup/`) that is the single source of truth.
-
-The `.claude/` directory in the project repo is typically git-ignored (contains per-developer config).
-The `claude-backup/` directory here is the single source of truth — a developer-agnostic template.
-`/onboard` and `/moin` deploy it to `.claude/`, replacing variables with literal paths.
-
-See [CONFIG.md](AIPlanningPilot/main/CONFIG.md) for path variable definitions and setup instructions.
+**Two-repo model**: Your source code lives in the project repo; plans, state, and decisions live here in the planning repo. The `claude-backup/` directory is the developer-agnostic template - `/onboard` and `/moin` deploy it to `.claude/`, replacing path variables with literal paths. See [CONFIG.md](AIPlanningPilot/main/CONFIG.md) for details.
 
 ### Commands
 
 | Command | When | What it does |
 |---------|------|-------------|
-| `/onboard` | First session ever | Setup wizard — configures paths, identity, creates handover file |
-| `/initial-planning` | After onboarding | Interactive wizard — creates project plan, phases, STATE.md |
+| `/onboard` | First session ever | Setup wizard - configures paths, identity, creates handover file |
+| `/initial-planning` | After onboarding | Interactive wizard - creates project plan, phases, STATE.md |
 | `/moin` | Start of each day | Loads state, presents briefing, shows handover notes |
-| `/refresh` | Mid-session | Lightweight context re-anchor (5 lines) |
+| `/refresh` | Mid-session | Lightweight context re-anchor |
 | `/decision` | When a decision is made | Records ADR immediately, updates STATE.md |
 | `/checkpoint` | Long sessions | Saves progress to handover file without ending session |
 | `/ciao` | End of day | Proposes state updates, writes after confirmation |
 | `/recap` | Returning after days off | Broader catch-up with completed actions and new decisions |
 | `/healthcheck` | Something feels off | Runs 13 environment checks, reports PASS/WARN/FAIL with fixes |
+| `/refactor` | Code quality review | Analyzes SOLID, clean code, test coverage; generates refactoring plan |
+| `/subtree-pull` | Framework update | Pulls latest AIPlanningPilot changes from source repo into subtree |
+| `/subtree-push` | Framework contribution | Pushes shared framework changes back to the AIPlanningPilot source repo |
 
-### Directory Structure
+---
 
-The planning framework lives inside the `AIPlanningPilot/` subfolder.
-When using `${PLANNING_REPO}`, point it to the `AIPlanningPilot/` subfolder (not the repo root).
+## Dashboard
+
+The planning framework is text-based by design - Claude reads and writes Markdown files.
+But for humans, scanning a dozen `.md` files to get the full picture is tedious.
+The Dashboard is a WPF desktop application that gives you a visual overview of your project's planning state in real time.
+
+### Features
+
+- **Project overview** - phase timeline with progress indicators, next actions, open decisions, and per-developer todos at a glance
+- **Decision browser** - lists all Architecture Decision Records (ADRs) with rendered Markdown detail view
+- **Handover viewer** - shows per-developer handover notes: next-session items, open threads, decisions & findings, and last-session summary
+- **Full-text search** - searches across all planning documents with file name, line number, and context
+- **Migration tracker** - KPI cards, progress bars, complexity breakdown, and per-module entity status for large migrations
+- **Live updates** - watches the planning repo for file changes and refreshes automatically
+
+### Screenshots
+
+![Dashboard - phase timeline, actions, decisions](docs/screenshots/dashboard.jpg)
+
+![Decisions - ADR list with rendered detail view](docs/screenshots/decisions.jpg)
+
+![Handover - per-developer session notes](docs/screenshots/handover.jpg)
+
+![Search - full-text search across all documents](docs/screenshots/search.jpg)
+
+![Migration - entity tracking with KPIs and progress](docs/screenshots/migration.jpg)
+
+---
+
+## Solution Structure
 
 ```
-AIPlanningPilot/                       Planning framework (${PLANNING_REPO})
-├── AIPlanningPilot.csproj             NoTargets project — includes docs in VS
-│
-├── main/                              Core orchestration documents
-│   ├── PLAN.md                        Table of contents — links to plan/ files
-│   ├── STATE.md                       Current state — phase, next actions, open decisions
-│   └── CONFIG.md                      Path variable definitions (per-developer)
-│
-├── handovers/                         Per-developer handover files
-│   └── handover-{name}.md            Handover notes — one per developer
-│
-├── plan/                              Split plan files (context window optimized)
-│   ├── overview.md                    Vision, macro phases, risk register
-│   └── phase-{N}-{slug}.md           One file per phase
-│
-├── decisions/                         Architecture Decision Records (ADRs)
-│   ├── INDEX.md                       Decisions index
-│   └── {NNN}-{slug}.md               Individual decision records
-│
-├── analysis/                          Codebase analysis documents
-│
-├── archive/                           Historical data (not loaded during /moin)
-│   ├── completed-actions.md           Actions completed via /ciao
-│   └── state-snapshots/               Timestamped STATE.md backups
-│
-├── documents/                         Project-specific documents
-│
-├── scripts/                           Utility scripts (sync, etc.)
-│
-├── claude-backup/                     Git-tracked mirror of project/.claude/
-│   ├── settings.json                  Hook registrations
-│   ├── commands/                      Claude Code slash commands (10 commands)
-│   ├── hooks/                         Claude Code hooks (validation & safety, 8 scripts)
-│   └── skills/                        Claude Code skills (Angular, MahApps, build-fix, etc.)
-│
-└── tests/                             Automated tests
-    └── hooks/                         Hook validation tests (bash)
-        ├── run-tests.sh               Entry point
-        ├── test-helper.sh             Shared test infrastructure
-        ├── test-*.sh                  Individual test files
-        └── fixtures/                  Test fixture files
+AIPlanningPilot/                      (repo root)
++-- AIPlanningPilot.slnx              Solution file (3 projects)
++-- NuGet.Config                      NuGet package sources
++-- Readme.md                         This file
++-- LICENSE                           MIT License
+|
++-- AIPlanningPilot/                  Planning framework (NoTargets project)
+|   +-- main/                         Core orchestration (STATE.md, PLAN.md, CONFIG.md)
+|   +-- plan/                         Phase-specific plan files
+|   +-- decisions/                    Architecture Decision Records
+|   +-- handovers/                    Per-developer handover files
+|   +-- analysis/                     Codebase analysis documents
+|   +-- archive/                      Historical data and backups
+|   +-- claude-backup/                Template source of truth for .claude/
+|   +-- tests/                        Hook validation tests (bash)
+|
++-- AIPlanningPilot.Dashboard/        WPF desktop dashboard (MahApps.Metro)
+|   +-- Services/                     Parsers and business logic
+|   +-- ViewModels/                   MVVM view models (CommunityToolkit.Mvvm)
+|   +-- Views/                        XAML views
+|   +-- Models/                       Domain models
+|
++-- AIPlanningPilot.Dashboard.Tests/  Unit tests (NUnit + FluentAssertions + Moq)
 ```
+
+### Building
+
+```bash
+dotnet build AIPlanningPilot.slnx       # Build the entire solution
+dotnet test AIPlanningPilot.slnx        # Run tests
+dotnet run --project AIPlanningPilot.Dashboard/AIPlanningPilot.Dashboard.csproj  # Run Dashboard
+```
+
+**Prerequisites:** .NET 8.0 SDK, Windows (WPF requires Windows)
 
 ### Testing
 
-#### Hook tests (bash)
-
-The hooks have automated bash tests in `AIPlanningPilot/tests/hooks/`. Run them from any bash shell:
+**Hook tests (bash):**
 
 ```bash
 cd AIPlanningPilot/tests/hooks
@@ -366,11 +244,6 @@ bash run-tests.sh                    # Run all tests
 bash run-tests.sh validate-state     # Run only matching test files
 ```
 
-Tests use temp directories with isolated `env.sh` -- they don't touch real repo files.
-Fixture files in `fixtures/` use `%%TODAY%%` placeholders replaced at runtime.
+Tests use temp directories with isolated `env.sh` - they don't touch real repo files.
 
-#### Dashboard tests (.NET)
-
-```bash
-dotnet test AIPlanningPilot.slnx
-```
+**Dashboard tests (.NET):** `dotnet test AIPlanningPilot.slnx`

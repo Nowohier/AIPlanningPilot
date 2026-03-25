@@ -61,7 +61,7 @@ export function parseConfig(claudeMdPath) {
     }
 
     // Extract path variables from the markdown table.
-    // Table rows look like: | `${PROJECT_REPO}` | `M:\CODE_COPY\ExampleOrg\ExampleProject` |
+    // Table rows look like: | `${PROJECT_REPO}` | `M:\CODE_COPY\MyOrg\MyProject` |
     const projectRepoMatch = content.match(/\|\s*`\$\{PROJECT_REPO\}`\s*\|\s*`([^`]+)`/);
     const planningRepoMatch = content.match(/\|\s*`\$\{PLANNING_REPO\}`\s*\|\s*`([^`]+)`/);
 
