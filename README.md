@@ -32,7 +32,7 @@ a persistent memory layer built on plain Markdown files.
 - **Per-developer handovers** — each developer owns their own handover file. No coordination, no merge conflicts.
 - **Automatic validation** — hooks check STATE.md structure, decision record format, and template integrity after every write. Errors are caught immediately, not in the next session.
 - **Self-healing setup** — `/moin` syncs the latest commands and hooks from the template on every session start. Updates are automatic.
-- **Built-in diagnostics** — `/healthcheck` runs 12 environment checks and tells you exactly what's broken and how to fix it.
+- **Built-in diagnostics** — `/healthcheck` runs 13 environment checks and tells you exactly what's broken and how to fix it.
 - **Safe by default** — state backups before every update, archive of completed actions, and guards against accidental hardcoded paths in templates.
 
 ---
@@ -121,7 +121,7 @@ This loads your project state, syncs the latest template updates, presents a bri
 ### If something feels off
 
 ```
-/healthcheck            Runs 12 environment checks, reports PASS/WARN/FAIL
+/healthcheck            Runs 13 environment checks, reports PASS/WARN/FAIL
 ```
 
 ### The lifecycle at a glance
@@ -237,7 +237,7 @@ See [CONFIG.md](main/CONFIG.md) for path variable definitions and setup instruct
 | `/checkpoint` | Long sessions | Saves progress to handover file without ending session |
 | `/ciao` | End of day | Proposes state updates, writes after confirmation |
 | `/recap` | Returning after days off | Broader catch-up with completed actions and new decisions |
-| `/healthcheck` | Something feels off | Runs 12 environment checks, reports PASS/WARN/FAIL with fixes |
+| `/healthcheck` | Something feels off | Runs 13 environment checks, reports PASS/WARN/FAIL with fixes |
 
 ### Directory Structure
 
@@ -269,11 +269,13 @@ planning-repo/
 │
 ├── documents/                 Project-specific documents
 │
+├── scripts/                   Utility scripts (sync, etc.)
+│
 ├── claude-backup/             Git-tracked mirror of project/.claude/
-│   ├── CLAUDE.md              Developer preferences + path variables
 │   ├── settings.json          Hook registrations
 │   ├── commands/              Claude Code slash commands (9 commands)
-│   └── hooks/                 Claude Code hooks (validation & safety, 7 scripts)
+│   ├── hooks/                 Claude Code hooks (validation & safety, 8 scripts)
+│   └── skills/                Claude Code skills (Angular, build-fix, etc.)
 │
 └── tests/                     Automated tests
     └── hooks/                 Hook validation tests (bash)
