@@ -35,7 +35,10 @@ function createTempDir() {
 }
 
 /** Writes a minimal .claude/CLAUDE.md config file. */
-function writeClaudeMd(dir, { developer = 'TestDev', projectRepo = 'M:\\TestProject', planningRepo = 'M:\\TestProject\\restructuring' } = {}) {
+function writeClaudeMd(dir, { developer = 'TestDev', projectRepo = 'M:\\TestProject', planningRepo = 'M:\\TestProject\\restructuring', sourceRepo = 'M:\\SourceRepos\\AIPlanningPilot' } = {}) {
+    const sourceRepoLine = sourceRepo
+        ? `| \`\${SOURCE_REPO}\` | \`${sourceRepo}\` |`
+        : '';
     const content = `# Personal preferences
 
 - **Developer**: ${developer}
@@ -46,6 +49,7 @@ function writeClaudeMd(dir, { developer = 'TestDev', projectRepo = 'M:\\TestProj
 |----------|-------|
 | \`\${PROJECT_REPO}\` | \`${projectRepo}\` |
 | \`\${PLANNING_REPO}\` | \`${planningRepo}\` |
+${sourceRepoLine}
 `;
     const claudeDir = join(dir, '.claude');
     mkdirSync(claudeDir, { recursive: true });
@@ -137,6 +141,23 @@ describe('parseConfig', () => {
             /Cannot parse/
         );
     });
+
+    it('parses SOURCE_REPO when present', () => {
+        writeClaudeMd(tempDir, {
+            sourceRepo: 'M:\\CODE_COPY\\EigeneProjekte\\AIPlanningPilot',
+        });
+
+        const config = parseConfig(join(tempDir, '.claude', 'CLAUDE.md'));
+        assert.equal(config.sourceRepo, 'M:\\CODE_COPY\\EigeneProjekte\\AIPlanningPilot');
+        assert.equal(config.bashSourcePath, '/m/CODE_COPY/EigeneProjekte/AIPlanningPilot');
+    });
+
+    it('defaults SOURCE_REPO to UNCONFIGURED when missing', () => {
+        writeClaudeMd(tempDir, { sourceRepo: null });
+
+        const config = parseConfig(join(tempDir, '.claude', 'CLAUDE.md'));
+        assert.equal(config.sourceRepo, 'UNCONFIGURED');
+    });
 });
 
 // ---------------------------------------------------------------------------
@@ -151,6 +172,7 @@ describe('syncCommands', () => {
         developer: 'Chris',
         projectRepo: 'M:\\CODE_COPY\\ExampleOrg\\ExampleProject',
         planningRepo: 'M:\\CODE_COPY\\ExampleOrg\\ExampleProject\\restructuring',
+        sourceRepo: 'M:\\CODE_COPY\\EigeneProjekte\\AIPlanningPilot',
     };
 
     beforeEach(() => {
@@ -275,6 +297,28 @@ Some body text.
         assert.ok(!result.includes('${PROJECT_REPO}'));
     });
 
+    it('substitutes ${SOURCE_REPO} in body', () => {
+        const template = `Copy files to \${SOURCE_REPO}/AIPlanningPilot/\n`;
+        writeFileSync(join(backupDir, 'test.md'), template, 'utf-8');
+
+        syncCommands(config, backupDir, targetDir);
+
+        const result = readFileSync(join(targetDir, 'test.md'), 'utf-8');
+        assert.ok(result.includes('M:\\CODE_COPY\\EigeneProjekte\\AIPlanningPilot/AIPlanningPilot/'));
+        assert.ok(!result.includes('${SOURCE_REPO}'));
+    });
+
+    it('preserves escaped \\${SOURCE_REPO} references', () => {
+        const template = `Check if \\\${SOURCE_REPO} is configured.\nReal path: \${SOURCE_REPO}.\n`;
+        writeFileSync(join(backupDir, 'test.md'), template, 'utf-8');
+
+        syncCommands(config, backupDir, targetDir);
+
+        const result = readFileSync(join(targetDir, 'test.md'), 'utf-8');
+        assert.ok(result.includes('${SOURCE_REPO}'));
+        assert.ok(result.includes('M:\\CODE_COPY\\EigeneProjekte\\AIPlanningPilot'));
+    });
+
     it('returns correct counts', () => {
         writeFileSync(join(backupDir, 'a.md'), '# A\n', 'utf-8');
         writeFileSync(join(backupDir, 'b.md'), '# B\n', 'utf-8');
@@ -298,6 +342,7 @@ describe('syncHooks', () => {
         developer: 'Chris',
         bashProjectPath: '/m/CODE_COPY/ExampleOrg/ExampleProject',
         bashPlanningPath: '/m/CODE_COPY/ExampleOrg/ExampleProject/restructuring',
+        bashSourcePath: '/m/CODE_COPY/EigeneProjekte/AIPlanningPilot',
     };
 
     beforeEach(() => {
@@ -313,6 +358,7 @@ describe('syncHooks', () => {
         const template = `#!/usr/bin/env bash
 PROJECT_REPO="\${PROJECT_REPO}"
 PLANNING_REPO="\${PLANNING_REPO}"
+SOURCE_REPO="\${SOURCE_REPO}"
 DEVELOPER="UNCONFIGURED"
 
 PLANNING_DIR="\${PLANNING_REPO}"
@@ -325,6 +371,7 @@ STATE_FILE="\${PLANNING_DIR}/main/STATE.md"
         const result = readFileSync(join(targetDir, 'env.sh'), 'utf-8');
         assert.ok(result.includes('PROJECT_REPO="/m/CODE_COPY/ExampleOrg/ExampleProject"'));
         assert.ok(result.includes('PLANNING_REPO="/m/CODE_COPY/ExampleOrg/ExampleProject/restructuring"'));
+        assert.ok(result.includes('SOURCE_REPO="/m/CODE_COPY/EigeneProjekte/AIPlanningPilot"'));
         assert.ok(result.includes('DEVELOPER="Chris"'));
     });
 
@@ -710,6 +757,7 @@ Read \${PLANNING_REPO}\\main\\STATE.md
         writeFileSync(join(backupBase, 'hooks', 'env.sh'), `#!/usr/bin/env bash
 PROJECT_REPO="\${PROJECT_REPO}"
 PLANNING_REPO="\${PLANNING_REPO}"
+SOURCE_REPO="\${SOURCE_REPO}"
 DEVELOPER="UNCONFIGURED"
 PLANNING_DIR="\${PLANNING_REPO}"
 `, 'utf-8');

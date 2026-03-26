@@ -20,6 +20,7 @@ Resolve them when following instructions in command files.
 |----------|-------|
 | `${PROJECT_REPO}` | `UNCONFIGURED` |
 | `${PLANNING_REPO}` | `UNCONFIGURED` |
+| `${SOURCE_REPO}` | `UNCONFIGURED` |
 
 > **Setup**: Each developer must update the values above to match their local paths.
 > See also `${PLANNING_REPO}/main/CONFIG.md` for full documentation of the path variable convention.

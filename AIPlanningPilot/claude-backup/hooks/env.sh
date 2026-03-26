@@ -14,6 +14,7 @@
 
 PROJECT_REPO="${PROJECT_REPO}"
 PLANNING_REPO="${PLANNING_REPO}"
+SOURCE_REPO="${SOURCE_REPO}"
 DEVELOPER="UNCONFIGURED"
 
 # Derived paths used by multiple hooks
@@ -37,3 +38,18 @@ require_planning_repo() {
   fi
   return 0
 }
+
+# --- Project-specific guardrails (defaults) ---
+# Override in $PLANNING_DIR/main/hooks-config.sh (git-tracked, shared by all devs).
+# Space-separated directory names relative to project root.
+PROTECTED_PATHS=""
+# Case-insensitive patterns matched anywhere in the path (space-separated).
+PROTECTED_PATTERNS=""
+# Set to "true" to block git commit commands.
+BLOCK_GIT_COMMIT="false"
+
+# Source project-specific overrides if they exist
+_HOOKS_CONFIG="${PLANNING_DIR}/main/hooks-config.sh"
+if [[ -f "$_HOOKS_CONFIG" ]]; then
+  source "$_HOOKS_CONFIG"
+fi

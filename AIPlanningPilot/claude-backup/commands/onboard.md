@@ -13,11 +13,13 @@ Ask these questions (in a single message):
 1. **"What's your developer name?"** (e.g., "Nowo", "Alex", or any name)
 2. **"Where is your project's source code repo?"** (e.g., `M:\CODE_COPY\MyProject`)
 3. **"Where is your planning repo?"** (e.g., `M:\CODE_COPY\MyProject-planning`)
+4. **"Where is your AIPlanningPilot source repo clone?"** (optional, for `/subtree-push`. e.g., `M:\CODE_COPY\AIPlanningPilot`. Enter "skip" if you don't have one.)
 
 ## Step 2 — Validate paths
 
 Verify both directories exist. If either is missing, report the error and
 ask the developer to correct it before continuing.
+If SOURCE_REPO was provided (not "skip"), verify it exists too.
 
 ## Step 3 — Configure `.claude/CLAUDE.md`
 
@@ -75,6 +77,7 @@ developer's paths.
 3. Replace the variable placeholders with the bash-compatible literal values:
    - `PROJECT_REPO="\${PROJECT_REPO}"` → `PROJECT_REPO="/m/..."`
    - `PLANNING_REPO="\${PLANNING_REPO}"` → `PLANNING_REPO="/m/..."`
+   - `SOURCE_REPO="\${SOURCE_REPO}"` → `SOURCE_REPO="/m/..."` (or `"UNCONFIGURED"` if skipped)
    - `DEVELOPER="UNCONFIGURED"` → `DEVELOPER="{developer name}"`
 
 4. Keep the derived paths using bash variable expansion (e.g.,
@@ -85,6 +88,17 @@ developer's paths.
    (this was handled in Step 4 item 2 — just confirm it's correct).
 
 6. Ensure all `${PROJECT_REPO}/.claude/hooks/*.sh` files have Unix line endings (LF, not CRLF).
+
+7. **Deploy hooks-config.sh** (project-specific guardrails):
+   - Check if `${PLANNING_REPO}/main/hooks-config.sh` already exists.
+   - If it does NOT exist, copy from `${PLANNING_REPO}/claude-backup/hooks-config.template.sh`
+     to `${PLANNING_REPO}/main/hooks-config.sh` and ensure LF line endings.
+   - Tell the developer:
+     **"Created `main/hooks-config.sh` with empty defaults. Edit this file to configure
+     guardrail hooks for your project (protected directories, git commit blocking).
+     This file is git-tracked and shared by all developers."**
+   - If it already exists, show the current values and say:
+     **"Project guardrails are configured in `main/hooks-config.sh`."**
 
 ## Step 4c — Configure project-local permissions
 

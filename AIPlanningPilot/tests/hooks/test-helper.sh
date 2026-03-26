@@ -56,6 +56,13 @@ setup_test_env() {
   mkdir -p "${TEST_PLANNING_DIR}/decisions"
   mkdir -p "${TEST_PLANNING_DIR}/claude-backup/commands"
 
+  # Create default hooks-config.sh for tests
+  cat > "${TEST_PLANNING_DIR}/main/hooks-config.sh" << 'HCEOF'
+PROTECTED_PATHS="legacy server"
+PROTECTED_PATTERNS="generated"
+BLOCK_GIT_COMMIT="true"
+HCEOF
+
   # Copy all hook scripts to temp location
   cp "${HOOKS_DIR}"/*.sh "${TEST_HOOKS_DIR}/"
 
@@ -83,6 +90,17 @@ require_planning_repo() {
   fi
   return 0
 }
+
+# --- Project-specific guardrails (defaults) ---
+PROTECTED_PATHS=""
+PROTECTED_PATTERNS=""
+BLOCK_GIT_COMMIT="false"
+
+# Source project-specific overrides if they exist
+_HOOKS_CONFIG="\${PLANNING_DIR}/main/hooks-config.sh"
+if [[ -f "\$_HOOKS_CONFIG" ]]; then
+  source "\$_HOOKS_CONFIG"
+fi
 ENVEOF
 }
 
@@ -136,6 +154,12 @@ make_tool_input() {
 make_prompt_input() {
   local prompt="$1"
   node -e 'console.log(JSON.stringify({prompt:process.argv[1]}))' "$prompt"
+}
+
+# Build a tool input JSON for Bash hooks
+make_bash_input() {
+  local command="$1"
+  node -e 'console.log(JSON.stringify({tool_name:"Bash",tool_input:{command:process.argv[1]}}))' "$command"
 }
 
 # --- Run a hook ---

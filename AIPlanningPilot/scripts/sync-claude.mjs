@@ -72,12 +72,18 @@ export function parseConfig(claudeMdPath) {
     const projectRepo = projectRepoMatch[1].trim();
     const planningRepo = planningRepoMatch[1].trim();
 
+    // SOURCE_REPO is optional (only needed for /subtree-push)
+    const sourceRepoMatch = content.match(/\|\s*`\$\{SOURCE_REPO\}`\s*\|\s*`([^`]+)`/);
+    const sourceRepo = sourceRepoMatch ? sourceRepoMatch[1].trim() : 'UNCONFIGURED';
+
     return {
         developer,
         projectRepo,
         planningRepo,
+        sourceRepo,
         bashProjectPath: winToBashPath(projectRepo),
         bashPlanningPath: winToBashPath(planningRepo),
+        bashSourcePath: winToBashPath(sourceRepo),
     };
 }
 
@@ -129,15 +135,18 @@ export function syncCommands(config, backupDir, targetDir) {
         // Protect escaped references: \${VAR} → sentinel (these are instructional examples, not paths)
         content = content.split('\\${PROJECT_REPO}').join('__ESCAPED_PROJECT_REPO__');
         content = content.split('\\${PLANNING_REPO}').join('__ESCAPED_PLANNING_REPO__');
+        content = content.split('\\${SOURCE_REPO}').join('__ESCAPED_SOURCE_REPO__');
 
         // Substitute path variables in body
         // Use split/join for literal replacement (no regex escaping needed)
         content = content.split('${PLANNING_REPO}').join(config.planningRepo);
         content = content.split('${PROJECT_REPO}').join(config.projectRepo);
+        content = content.split('${SOURCE_REPO}').join(config.sourceRepo);
 
         // Restore escaped references back to literal ${VAR} text
         content = content.split('__ESCAPED_PROJECT_REPO__').join('${PROJECT_REPO}');
         content = content.split('__ESCAPED_PLANNING_REPO__').join('${PLANNING_REPO}');
+        content = content.split('__ESCAPED_SOURCE_REPO__').join('${SOURCE_REPO}');
 
         writeFileSync(join(targetDir, file), content, 'utf-8');
     }
@@ -180,6 +189,10 @@ export function syncHooks(config, backupDir, targetDir) {
             content = content.replace(
                 /^PLANNING_REPO=.*$/m,
                 `PLANNING_REPO="${config.bashPlanningPath}"`
+            );
+            content = content.replace(
+                /^SOURCE_REPO=.*$/m,
+                `SOURCE_REPO="${config.bashSourcePath}"`
             );
             content = content.replace(
                 /^DEVELOPER=.*$/m,
