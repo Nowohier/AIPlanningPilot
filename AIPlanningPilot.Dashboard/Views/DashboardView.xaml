@@ -86,13 +86,14 @@
                                                 <ItemsControl ItemsSource="{Binding PlanHeadings}">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate DataType="{x:Type models:PlanHeading}">
-                                                            <StackPanel Orientation="Horizontal" Margin="{Binding Level, Converter={StaticResource PlanHeadingLevelToMarginConverter}}">
+                                                            <DockPanel Margin="{Binding Level, Converter={StaticResource PlanHeadingLevelToMarginConverter}}">
                                                                 <iconPacks:PackIconPhosphorIcons Kind="CaretRight" Width="10" Height="10"
-                                                                    VerticalAlignment="Center" Margin="0,0,4,0"
+                                                                    DockPanel.Dock="Left"
+                                                                    VerticalAlignment="Top" Margin="0,3,4,0"
                                                                     Foreground="{DynamicResource MahApps.Brushes.Accent}" />
                                                                 <TextBlock Text="{Binding Text}" FontSize="11"
                                                                            Foreground="White" TextWrapping="Wrap" />
-                                                            </StackPanel>
+                                                            </DockPanel>
                                                         </DataTemplate>
                                                     </ItemsControl.ItemTemplate>
                                                 </ItemsControl>
@@ -113,12 +114,13 @@
                     <ItemsControl ItemsSource="{Binding HandoverNextItems}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <DockPanel Margin="0,4">
                                     <iconPacks:PackIconPhosphorIcons Kind="ArrowRight" Width="12" Height="12"
-                                                                      VerticalAlignment="Center" Margin="0,0,6,0"
+                                                                      DockPanel.Dock="Left"
+                                                                      VerticalAlignment="Top" Margin="0,3,6,0"
                                                                       Foreground="{DynamicResource MahApps.Brushes.Accent}" />
                                     <TextBlock Text="{Binding}" TextWrapping="Wrap" />
-                                </StackPanel>
+                                </DockPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

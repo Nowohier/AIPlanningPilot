@@ -51,12 +51,13 @@
                                     <ItemsControl ItemsSource="{Binding ForNextSession}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <StackPanel Orientation="Horizontal" Margin="0,4">
+                                                <DockPanel Margin="0,4">
                                                     <iconPacks:PackIconPhosphorIcons Kind="ArrowRight" Width="12" Height="12"
-                                                                                      VerticalAlignment="Center" Margin="0,0,8,0"
+                                                                                      DockPanel.Dock="Left"
+                                                                                      VerticalAlignment="Top" Margin="0,3,8,0"
                                                                                       Foreground="{DynamicResource MahApps.Brushes.Accent}" />
                                                     <TextBlock Text="{Binding}" TextWrapping="Wrap" FontSize="13" />
-                                                </StackPanel>
+                                                </DockPanel>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
@@ -77,12 +78,13 @@
                                         <ItemsControl ItemsSource="{Binding OpenThreads}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <StackPanel Orientation="Horizontal" Margin="0,4">
+                                                    <DockPanel Margin="0,4">
                                                         <iconPacks:PackIconPhosphorIcons Kind="CircleDashed" Width="12" Height="12"
+                                                                                          DockPanel.Dock="Left"
                                                                                           VerticalAlignment="Top" Margin="0,3,6,0"
                                                                                           Foreground="{DynamicResource MahApps.Brushes.Accent}" />
                                                         <TextBlock Text="{Binding}" TextWrapping="Wrap" />
-                                                    </StackPanel>
+                                                    </DockPanel>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
@@ -95,12 +97,13 @@
                                         <ItemsControl ItemsSource="{Binding DecisionsAndFindings}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <StackPanel Orientation="Horizontal" Margin="0,4">
+                                                    <DockPanel Margin="0,4">
                                                         <iconPacks:PackIconPhosphorIcons Kind="Check" Width="12" Height="12"
+                                                                                          DockPanel.Dock="Left"
                                                                                           VerticalAlignment="Top" Margin="0,3,6,0"
                                                                                           Foreground="{DynamicResource MahApps.Brushes.Accent}" />
                                                         <TextBlock Text="{Binding}" TextWrapping="Wrap" />
-                                                    </StackPanel>
+                                                    </DockPanel>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
@@ -113,12 +116,13 @@
                                     <ItemsControl ItemsSource="{Binding FromLastSession}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <StackPanel Orientation="Horizontal" Margin="0,4">
+                                                <DockPanel Margin="0,4">
                                                     <iconPacks:PackIconPhosphorIcons Kind="ArrowRight" Width="12" Height="12"
-                                                                                      VerticalAlignment="Center" Margin="0,0,8,0"
+                                                                                      DockPanel.Dock="Left"
+                                                                                      VerticalAlignment="Top" Margin="0,3,8,0"
                                                                                       Foreground="{DynamicResource MahApps.Brushes.Accent}" />
                                                     <TextBlock Text="{Binding}" TextWrapping="Wrap" FontSize="13" />
-                                                </StackPanel>
+                                                </DockPanel>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
