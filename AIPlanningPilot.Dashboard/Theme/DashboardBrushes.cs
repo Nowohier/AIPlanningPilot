@@ -1,6 +1,6 @@
 using System.Windows.Media;
 
-namespace AIPlanningPilot.Dashboard.Converters;
+namespace AIPlanningPilot.Dashboard.Theme;
 
 /// <summary>
 /// Centralized color palette for the dashboard UI. All converters reference

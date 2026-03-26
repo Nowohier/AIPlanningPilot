@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Windows.Data;
 using AIPlanningPilot.Dashboard.Models;
+using AIPlanningPilot.Dashboard.Theme;
 
 namespace AIPlanningPilot.Dashboard.Converters;
 

@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using AIPlanningPilot.Dashboard.Models;
 
 namespace AIPlanningPilot.Dashboard.Services;
 
@@ -261,6 +262,75 @@ internal static partial class MarkdownTableParser
             .ToList();
 
         return sentences;
+    }
+
+    /// <summary>
+    /// Extracts dated session log entries from the "Session Log" section.
+    /// Each entry starts with a <c>### YYYY-MM-DD</c> sub-heading followed by bullet items.
+    /// Entries are returned in file order (newest first if the file is written that way).
+    /// </summary>
+    /// <param name="markdownText">The full markdown document text.</param>
+    /// <returns>A list of session log entries, each containing a date and bullet items.</returns>
+    public static List<SessionLogEntry> ExtractSessionLogEntries(string markdownText)
+    {
+        var entries = new List<SessionLogEntry>();
+        var lines = markdownText.Split('\n');
+        var inSessionLog = false;
+        SessionLogEntry? currentEntry = null;
+
+        for (var i = 0; i < lines.Length; i++)
+        {
+            var line = lines[i].TrimEnd('\r');
+            var trimmed = line.TrimStart();
+
+            if (!inSessionLog)
+            {
+                if (IsHeading(line, ParserConstants.SectionSessionLog) && GetHeadingLevel(trimmed) == 2)
+                {
+                    inSessionLog = true;
+                }
+                continue;
+            }
+
+            // Stop at the next ## heading (different section)
+            if (trimmed.StartsWith("## ") && !trimmed.StartsWith("### "))
+            {
+                break;
+            }
+
+            // New date entry: ### YYYY-MM-DD
+            if (trimmed.StartsWith("### "))
+            {
+                currentEntry = new SessionLogEntry
+                {
+                    Date = trimmed[4..].Trim()
+                };
+                entries.Add(currentEntry);
+                continue;
+            }
+
+            // Bullet items belonging to current entry
+            if (currentEntry != null && trimmed.StartsWith("- "))
+            {
+                currentEntry.Items.Add(trimmed[2..].Trim());
+            }
+        }
+
+        return entries;
+    }
+
+    /// <summary>
+    /// Returns the heading level (number of leading # characters) for a line.
+    /// </summary>
+    private static int GetHeadingLevel(string trimmedLine)
+    {
+        var level = 0;
+        foreach (var c in trimmedLine)
+        {
+            if (c == '#') level++;
+            else break;
+        }
+        return level;
     }
 
     /// <summary>

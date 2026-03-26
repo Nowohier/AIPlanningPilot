@@ -11,8 +11,8 @@ namespace AIPlanningPilot.Dashboard.Tests.ViewModels;
 [TestFixture]
 public class SettingsViewModelTests
 {
-    private Mock<ISettingsService> _mockSettingsService = null!;
-    private Mock<IMarkdownRenderer> _mockMarkdownRenderer = null!;
+    private Mock<ISettingsService> mockSettingsService = null!;
+    private Mock<IMarkdownRenderer> mockMarkdownRenderer = null!;
 
     /// <summary>
     /// Initializes mock dependencies before each test.
@@ -20,8 +20,8 @@ public class SettingsViewModelTests
     [SetUp]
     public void SetUp()
     {
-        _mockSettingsService = new Mock<ISettingsService>(MockBehavior.Strict);
-        _mockMarkdownRenderer = new Mock<IMarkdownRenderer>(MockBehavior.Strict);
+        mockSettingsService = new Mock<ISettingsService>(MockBehavior.Strict);
+        mockMarkdownRenderer = new Mock<IMarkdownRenderer>(MockBehavior.Strict);
     }
 
     /// <summary>
@@ -30,8 +30,8 @@ public class SettingsViewModelTests
     [TearDown]
     public void TearDown()
     {
-        _mockSettingsService.VerifyAll();
-        _mockMarkdownRenderer.VerifyAll();
+        mockSettingsService.VerifyAll();
+        mockMarkdownRenderer.VerifyAll();
     }
 
     /// <summary>
@@ -41,8 +41,8 @@ public class SettingsViewModelTests
     public void Constructor_WhenCalled_ShouldInitializeFromRenderer()
     {
         // Arrange
-        _mockMarkdownRenderer.Setup(r => r.SelectedThemeName).Returns("GitHub Dark");
-        _mockMarkdownRenderer.Setup(r => r.AvailableThemes).Returns(new[] { "GitHub Dark", "GitHub Light" });
+        mockMarkdownRenderer.Setup(r => r.SelectedThemeName).Returns("GitHub Dark");
+        mockMarkdownRenderer.Setup(r => r.AvailableThemes).Returns(new[] { "GitHub Dark", "GitHub Light" });
 
         // Act
         var vm = CreateViewModel();
@@ -59,7 +59,7 @@ public class SettingsViewModelTests
     public void Constructor_WhenNullSettingsService_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new SettingsViewModel(null!, _mockMarkdownRenderer.Object);
+        var act = () => new SettingsViewModel(null!, mockMarkdownRenderer.Object);
 
         // Assert
         act.Should().Throw<ArgumentNullException>()
@@ -73,7 +73,7 @@ public class SettingsViewModelTests
     public void Constructor_WhenNullMarkdownRenderer_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new SettingsViewModel(_mockSettingsService.Object, null!);
+        var act = () => new SettingsViewModel(mockSettingsService.Object, null!);
 
         // Assert
         act.Should().Throw<ArgumentNullException>()
@@ -87,10 +87,10 @@ public class SettingsViewModelTests
     public void Save_WhenCalled_ShouldApplyThemeToRenderer()
     {
         // Arrange
-        _mockMarkdownRenderer.Setup(r => r.SelectedThemeName).Returns("GitHub Dark");
-        _mockMarkdownRenderer.SetupSet(r => r.SelectedThemeName = "GitHub Light");
-        _mockSettingsService.SetupSet(s => s.SelectedThemeName = "GitHub Light");
-        _mockSettingsService.Setup(s => s.Save());
+        mockMarkdownRenderer.Setup(r => r.SelectedThemeName).Returns("GitHub Dark");
+        mockMarkdownRenderer.SetupSet(r => r.SelectedThemeName = "GitHub Light");
+        mockSettingsService.SetupSet(s => s.SelectedThemeName = "GitHub Light");
+        mockSettingsService.Setup(s => s.Save());
 
         var vm = CreateViewModel();
         vm.SelectedThemeName = "GitHub Light";
@@ -99,7 +99,7 @@ public class SettingsViewModelTests
         vm.Save();
 
         // Assert
-        _mockMarkdownRenderer.VerifySet(r => r.SelectedThemeName = "GitHub Light", Times.Once());
+        mockMarkdownRenderer.VerifySet(r => r.SelectedThemeName = "GitHub Light", Times.Once());
     }
 
     /// <summary>
@@ -109,10 +109,10 @@ public class SettingsViewModelTests
     public void Save_WhenCalled_ShouldPersistToSettingsService()
     {
         // Arrange
-        _mockMarkdownRenderer.Setup(r => r.SelectedThemeName).Returns("GitHub Dark");
-        _mockMarkdownRenderer.SetupSet(r => r.SelectedThemeName = "GitHub Light");
-        _mockSettingsService.SetupSet(s => s.SelectedThemeName = "GitHub Light");
-        _mockSettingsService.Setup(s => s.Save());
+        mockMarkdownRenderer.Setup(r => r.SelectedThemeName).Returns("GitHub Dark");
+        mockMarkdownRenderer.SetupSet(r => r.SelectedThemeName = "GitHub Light");
+        mockSettingsService.SetupSet(s => s.SelectedThemeName = "GitHub Light");
+        mockSettingsService.Setup(s => s.Save());
 
         var vm = CreateViewModel();
         vm.SelectedThemeName = "GitHub Light";
@@ -121,8 +121,8 @@ public class SettingsViewModelTests
         vm.Save();
 
         // Assert
-        _mockSettingsService.VerifySet(s => s.SelectedThemeName = "GitHub Light", Times.Once());
-        _mockSettingsService.Verify(s => s.Save(), Times.Once());
+        mockSettingsService.VerifySet(s => s.SelectedThemeName = "GitHub Light", Times.Once());
+        mockSettingsService.Verify(s => s.Save(), Times.Once());
     }
 
     /// <summary>
@@ -132,10 +132,10 @@ public class SettingsViewModelTests
     public void Save_WhenCalled_ShouldRaiseCloseRequested()
     {
         // Arrange
-        _mockMarkdownRenderer.Setup(r => r.SelectedThemeName).Returns("GitHub Dark");
-        _mockMarkdownRenderer.SetupSet(r => r.SelectedThemeName = "GitHub Dark");
-        _mockSettingsService.SetupSet(s => s.SelectedThemeName = "GitHub Dark");
-        _mockSettingsService.Setup(s => s.Save());
+        mockMarkdownRenderer.Setup(r => r.SelectedThemeName).Returns("GitHub Dark");
+        mockMarkdownRenderer.SetupSet(r => r.SelectedThemeName = "GitHub Dark");
+        mockSettingsService.SetupSet(s => s.SelectedThemeName = "GitHub Dark");
+        mockSettingsService.Setup(s => s.Save());
 
         var vm = CreateViewModel();
         bool? closeResult = null;
@@ -155,7 +155,7 @@ public class SettingsViewModelTests
     public void Cancel_WhenCalled_ShouldRaiseCloseRequestedWithFalse()
     {
         // Arrange
-        _mockMarkdownRenderer.Setup(r => r.SelectedThemeName).Returns("GitHub Dark");
+        mockMarkdownRenderer.Setup(r => r.SelectedThemeName).Returns("GitHub Dark");
 
         var vm = CreateViewModel();
         bool? closeResult = null;
@@ -175,7 +175,7 @@ public class SettingsViewModelTests
     public void Cancel_WhenCalled_ShouldNotSaveSettings()
     {
         // Arrange
-        _mockMarkdownRenderer.Setup(r => r.SelectedThemeName).Returns("GitHub Dark");
+        mockMarkdownRenderer.Setup(r => r.SelectedThemeName).Returns("GitHub Dark");
 
         var vm = CreateViewModel();
 
@@ -183,7 +183,7 @@ public class SettingsViewModelTests
         vm.Cancel();
 
         // Assert
-        _mockSettingsService.Verify(s => s.Save(), Times.Never());
+        mockSettingsService.Verify(s => s.Save(), Times.Never());
     }
 
     /// <summary>
@@ -192,7 +192,7 @@ public class SettingsViewModelTests
     private SettingsViewModel CreateViewModel()
     {
         return new SettingsViewModel(
-            _mockSettingsService.Object,
-            _mockMarkdownRenderer.Object);
+            mockSettingsService.Object,
+            mockMarkdownRenderer.Object);
     }
 }

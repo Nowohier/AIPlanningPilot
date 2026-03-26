@@ -11,21 +11,21 @@ namespace AIPlanningPilot.Dashboard.Tests.ViewModels;
 [TestFixture]
 public class MarkdownViewerViewModelTests
 {
-    private Mock<IFileSystemService> _mockFileSystemService = null!;
-    private Mock<IMarkdownRenderer> _mockMarkdownRenderer = null!;
+    private Mock<IFileSystemService> mockFileSystemService = null!;
+    private Mock<IMarkdownRenderer> mockMarkdownRenderer = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _mockFileSystemService = new Mock<IFileSystemService>(MockBehavior.Strict);
-        _mockMarkdownRenderer = new Mock<IMarkdownRenderer>(MockBehavior.Strict);
+        mockFileSystemService = new Mock<IFileSystemService>(MockBehavior.Strict);
+        mockMarkdownRenderer = new Mock<IMarkdownRenderer>(MockBehavior.Strict);
     }
 
     [TearDown]
     public void TearDown()
     {
-        _mockFileSystemService.VerifyAll();
-        _mockMarkdownRenderer.VerifyAll();
+        mockFileSystemService.VerifyAll();
+        mockMarkdownRenderer.VerifyAll();
     }
 
     [Test]
@@ -36,10 +36,10 @@ public class MarkdownViewerViewModelTests
         var markdownContent = "# STATE.md\n\nSome content here.";
         var expectedHtml = "<html><body><h1>STATE.md</h1></body></html>";
 
-        _mockFileSystemService.Setup(fs => fs.ReadAllText(filePath)).Returns(markdownContent);
-        _mockMarkdownRenderer.Setup(r => r.RenderMarkdown(markdownContent)).Returns(expectedHtml);
+        mockFileSystemService.Setup(fs => fs.ReadAllText(filePath)).Returns(markdownContent);
+        mockMarkdownRenderer.Setup(r => r.RenderMarkdown(markdownContent)).Returns(expectedHtml);
 
-        var viewModel = new MarkdownViewerViewModel(_mockFileSystemService.Object, _mockMarkdownRenderer.Object);
+        var viewModel = new MarkdownViewerViewModel(mockFileSystemService.Object, mockMarkdownRenderer.Object);
 
         // Act
         viewModel.LoadFile(filePath);
@@ -58,12 +58,12 @@ public class MarkdownViewerViewModelTests
         var html1 = "<html><body><h1>File 1</h1></body></html>";
         var html2 = "<html><body><h1>File 2</h1></body></html>";
 
-        _mockFileSystemService.Setup(fs => fs.ReadAllText(filePath1)).Returns("# File 1");
-        _mockFileSystemService.Setup(fs => fs.ReadAllText(filePath2)).Returns("# File 2");
-        _mockMarkdownRenderer.Setup(r => r.RenderMarkdown("# File 1")).Returns(html1);
-        _mockMarkdownRenderer.Setup(r => r.RenderMarkdown("# File 2")).Returns(html2);
+        mockFileSystemService.Setup(fs => fs.ReadAllText(filePath1)).Returns("# File 1");
+        mockFileSystemService.Setup(fs => fs.ReadAllText(filePath2)).Returns("# File 2");
+        mockMarkdownRenderer.Setup(r => r.RenderMarkdown("# File 1")).Returns(html1);
+        mockMarkdownRenderer.Setup(r => r.RenderMarkdown("# File 2")).Returns(html2);
 
-        var viewModel = new MarkdownViewerViewModel(_mockFileSystemService.Object, _mockMarkdownRenderer.Object);
+        var viewModel = new MarkdownViewerViewModel(mockFileSystemService.Object, mockMarkdownRenderer.Object);
 
         // Act
         viewModel.LoadFile(filePath1);
@@ -78,7 +78,7 @@ public class MarkdownViewerViewModelTests
     public void Constructor_WhenNullFileSystemService_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new MarkdownViewerViewModel(null!, _mockMarkdownRenderer.Object);
+        var act = () => new MarkdownViewerViewModel(null!, mockMarkdownRenderer.Object);
 
         // Assert
         act.Should().Throw<ArgumentNullException>().WithParameterName("fileSystemService");
@@ -88,7 +88,7 @@ public class MarkdownViewerViewModelTests
     public void Constructor_WhenNullMarkdownRenderer_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new MarkdownViewerViewModel(_mockFileSystemService.Object, null!);
+        var act = () => new MarkdownViewerViewModel(mockFileSystemService.Object, null!);
 
         // Assert
         act.Should().Throw<ArgumentNullException>().WithParameterName("markdownRenderer");

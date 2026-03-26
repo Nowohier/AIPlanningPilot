@@ -4,7 +4,7 @@
 
 > **Trigger rule**: Only run this command when the user explicitly invokes it via `/tdd`. Do NOT trigger from conversational mentions of "test-driven", "TDD", "write tests first", or similar phrasing.
 
-Guide the current implementation task through a strict Red-Green-Refactor TDD cycle. This command enforces test-first development as mandated by ADR 004 (100% testing for all new code).
+Guide the current implementation task through a strict Red-Green-Refactor TDD cycle. This command enforces test-first development as mandated by ADR 004 (80% test coverage for all new code).
 
 ## Arguments
 

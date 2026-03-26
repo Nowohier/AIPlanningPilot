@@ -9,6 +9,7 @@ namespace AIPlanningPilot.Dashboard.Services;
 /// </summary>
 public class FileWatcherService : IFileWatcherService
 {
+    private readonly Action<Action> dispatchToUi;
     private FileSystemWatcher? watcher;
     private DispatcherTimer? debounceTimer;
     private volatile string? lastChangedPath;
@@ -17,6 +18,19 @@ public class FileWatcherService : IFileWatcherService
     /// Debounce interval in milliseconds. Changes within this window are coalesced.
     /// </summary>
     private const int DebounceMs = 500;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FileWatcherService"/> class.
+    /// </summary>
+    /// <param name="dispatchToUi">
+    /// Delegate for posting actions to the UI thread. In production, pass
+    /// <c>action => Application.Current.Dispatcher.BeginInvoke(action)</c>.
+    /// In tests, pass <c>action => action()</c> for synchronous execution.
+    /// </param>
+    public FileWatcherService(Action<Action> dispatchToUi)
+    {
+        this.dispatchToUi = dispatchToUi ?? throw new ArgumentNullException(nameof(dispatchToUi));
+    }
 
     /// <inheritdoc />
     public event Action<string>? FileChanged;
@@ -111,11 +125,11 @@ public class FileWatcherService : IFileWatcherService
     }
 
     /// <summary>
-    /// Restarts the debounce timer. Must be called on the UI thread via Dispatcher.
+    /// Restarts the debounce timer on the UI thread via the injected dispatcher.
     /// </summary>
     private void RestartDebounceTimer()
     {
-        System.Windows.Application.Current?.Dispatcher.BeginInvoke(() =>
+        dispatchToUi(() =>
         {
             debounceTimer?.Stop();
             debounceTimer?.Start();

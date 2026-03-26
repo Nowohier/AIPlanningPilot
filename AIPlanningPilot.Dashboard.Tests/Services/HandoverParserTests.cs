@@ -11,15 +11,15 @@ namespace AIPlanningPilot.Dashboard.Tests.Services;
 [TestFixture]
 public class HandoverParserTests
 {
-    private Mock<IFileSystemService> _mockFs = null!;
+    private Mock<IFileSystemService> mockFs = null!;
     private HandoverParser _parser = null!;
     private string _sampleContent = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _mockFs = new Mock<IFileSystemService>(MockBehavior.Strict);
-        _parser = new HandoverParser(_mockFs.Object);
+        mockFs = new Mock<IFileSystemService>(MockBehavior.Strict);
+        _parser = new HandoverParser(mockFs.Object);
         _sampleContent = File.ReadAllText(
             Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "sample-handover.md"));
     }
@@ -27,7 +27,7 @@ public class HandoverParserTests
     [TearDown]
     public void TearDown()
     {
-        _mockFs.VerifyAll();
+        mockFs.VerifyAll();
     }
 
     [Test]
@@ -99,10 +99,28 @@ public class HandoverParserTests
     }
 
     [Test]
+    public void ParseAll_WhenHandoverFilesExist_ShouldParseSessionLog()
+    {
+        // Arrange
+        SetupHandoverDirectory("chris");
+
+        // Act
+        var result = _parser.ParseAll(@"C:\handovers");
+
+        // Assert
+        result[0].SessionLog.Should().HaveCount(2);
+        result[0].SessionLog[0].Date.Should().Be("2026-03-23");
+        result[0].SessionLog[0].Items.Should().HaveCount(3);
+        result[0].SessionLog[0].Items[0].Should().Contain("AI tooling");
+        result[0].SessionLog[1].Date.Should().Be("2026-03-22");
+        result[0].SessionLog[1].Items.Should().HaveCount(3);
+    }
+
+    [Test]
     public void ParseAll_WhenDirectoryDoesNotExist_ShouldReturnEmpty()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.DirectoryExists(@"C:\handovers")).Returns(false);
+        mockFs.Setup(fs => fs.DirectoryExists(@"C:\handovers")).Returns(false);
 
         // Act
         var result = _parser.ParseAll(@"C:\handovers");
@@ -115,8 +133,8 @@ public class HandoverParserTests
     public void ParseAll_WhenNonMatchingFilesExist_ShouldIgnoreThem()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.DirectoryExists(@"C:\handovers")).Returns(true);
-        _mockFs.Setup(fs => fs.GetDirectoryTree(@"C:\handovers", false))
+        mockFs.Setup(fs => fs.DirectoryExists(@"C:\handovers")).Returns(true);
+        mockFs.Setup(fs => fs.GetDirectoryTree(@"C:\handovers", false))
             .Returns(
             [
                 new FileTreeNode
@@ -141,7 +159,7 @@ public class HandoverParserTests
                     LastModified = DateTime.UtcNow
                 }
             ]);
-        _mockFs.Setup(fs => fs.ReadAllText(@"C:\handovers\handover-chris.md"))
+        mockFs.Setup(fs => fs.ReadAllText(@"C:\handovers\handover-chris.md"))
             .Returns(_sampleContent);
 
         // Act
@@ -167,8 +185,8 @@ public class HandoverParserTests
     /// </summary>
     private void SetupHandoverDirectory(string devName)
     {
-        _mockFs.Setup(fs => fs.DirectoryExists(@"C:\handovers")).Returns(true);
-        _mockFs.Setup(fs => fs.GetDirectoryTree(@"C:\handovers", false))
+        mockFs.Setup(fs => fs.DirectoryExists(@"C:\handovers")).Returns(true);
+        mockFs.Setup(fs => fs.GetDirectoryTree(@"C:\handovers", false))
             .Returns(
             [
                 new FileTreeNode
@@ -179,7 +197,7 @@ public class HandoverParserTests
                     LastModified = DateTime.UtcNow
                 }
             ]);
-        _mockFs.Setup(fs => fs.ReadAllText($@"C:\handovers\handover-{devName}.md"))
+        mockFs.Setup(fs => fs.ReadAllText($@"C:\handovers\handover-{devName}.md"))
             .Returns(_sampleContent);
     }
 }

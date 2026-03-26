@@ -178,15 +178,24 @@ Check if the file already exists in the planning repo's `handovers/` directory.
 If not, create it:
 
 ```markdown
-# Handover Notes — {Name}
+# Handover Notes -- {Name}
 
-> Last updated: —
+> Last updated: --
 
 ## For Next Session
-_No handover notes yet — this is your first session._
+_No handover notes yet -- this is your first session._
+
+## Decisions & Findings
+_None._
 
 ## Open Threads
 _None._
+
+## From Last Session
+_First session -- no prior context._
+
+## Session Log
+_No sessions recorded yet._
 ```
 
 ## Step 6 — Project briefing

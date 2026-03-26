@@ -12,16 +12,16 @@ namespace AIPlanningPilot.Dashboard.Tests.ViewModels;
 [TestFixture]
 public class ActionHistoryViewModelTests
 {
-    private Mock<IConfigurationService> _mockConfig = null!;
-    private Mock<IActionHistoryParser> _mockParser = null!;
-    private Mock<IFileSystemService> _mockFs = null!;
+    private Mock<IConfigurationService> mockConfig = null!;
+    private Mock<IActionHistoryParser> mockParser = null!;
+    private Mock<IFileSystemService> mockFs = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _mockConfig = new Mock<IConfigurationService>(MockBehavior.Strict);
-        _mockParser = new Mock<IActionHistoryParser>(MockBehavior.Strict);
-        _mockFs = new Mock<IFileSystemService>(MockBehavior.Strict);
+        mockConfig = new Mock<IConfigurationService>(MockBehavior.Strict);
+        mockParser = new Mock<IActionHistoryParser>(MockBehavior.Strict);
+        mockFs = new Mock<IFileSystemService>(MockBehavior.Strict);
     }
 
     /// <summary>
@@ -30,24 +30,24 @@ public class ActionHistoryViewModelTests
     [TearDown]
     public void TearDown()
     {
-        _mockConfig.VerifyAll();
-        _mockParser.VerifyAll();
-        _mockFs.VerifyAll();
+        mockConfig.VerifyAll();
+        mockParser.VerifyAll();
+        mockFs.VerifyAll();
     }
 
     [Test]
     public void LoadData_WhenActionsExist_ShouldPopulateList()
     {
         // Arrange
-        _mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
-        _mockFs.Setup(fs => fs.FileExists(@"C:\root\archive\completed-actions.md")).Returns(true);
-        _mockParser.Setup(p => p.Parse(@"C:\root\archive\completed-actions.md")).Returns(
+        mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
+        mockFs.Setup(fs => fs.FileExists(@"C:\root\archive\completed-actions.md")).Returns(true);
+        mockParser.Setup(p => p.Parse(@"C:\root\archive\completed-actions.md")).Returns(
         [
             new CompletedAction { Number = 1, Description = "Action 1", Owner = "Chris", CompletedDate = "2026-03-04" },
             new CompletedAction { Number = 2, Description = "Action 2", Owner = "Claude", CompletedDate = "2026-03-04" }
         ]);
 
-        var vm = new ActionHistoryViewModel(_mockConfig.Object, _mockParser.Object, _mockFs.Object);
+        var vm = new ActionHistoryViewModel(mockConfig.Object, mockParser.Object, mockFs.Object);
 
         // Act
         vm.LoadData();
@@ -61,10 +61,10 @@ public class ActionHistoryViewModelTests
     public void LoadData_WhenFileMissing_ShouldNotThrow()
     {
         // Arrange
-        _mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
-        _mockFs.Setup(fs => fs.FileExists(@"C:\root\archive\completed-actions.md")).Returns(false);
+        mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
+        mockFs.Setup(fs => fs.FileExists(@"C:\root\archive\completed-actions.md")).Returns(false);
 
-        var vm = new ActionHistoryViewModel(_mockConfig.Object, _mockParser.Object, _mockFs.Object);
+        var vm = new ActionHistoryViewModel(mockConfig.Object, mockParser.Object, mockFs.Object);
 
         // Act
         vm.LoadData();
@@ -78,7 +78,7 @@ public class ActionHistoryViewModelTests
     public void Constructor_WhenNullConfigurationService_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new ActionHistoryViewModel(null!, _mockParser.Object, _mockFs.Object);
+        var act = () => new ActionHistoryViewModel(null!, mockParser.Object, mockFs.Object);
 
         // Assert
         act.Should().Throw<ArgumentNullException>().WithParameterName("configurationService");
@@ -88,7 +88,7 @@ public class ActionHistoryViewModelTests
     public void Constructor_WhenNullActionHistoryParser_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new ActionHistoryViewModel(_mockConfig.Object, null!, _mockFs.Object);
+        var act = () => new ActionHistoryViewModel(mockConfig.Object, null!, mockFs.Object);
 
         // Assert
         act.Should().Throw<ArgumentNullException>().WithParameterName("actionHistoryParser");
@@ -98,7 +98,7 @@ public class ActionHistoryViewModelTests
     public void Constructor_WhenNullFileSystemService_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new ActionHistoryViewModel(_mockConfig.Object, _mockParser.Object, null!);
+        var act = () => new ActionHistoryViewModel(mockConfig.Object, mockParser.Object, null!);
 
         // Assert
         act.Should().Throw<ArgumentNullException>().WithParameterName("fileSystemService");

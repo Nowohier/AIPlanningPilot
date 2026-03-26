@@ -12,16 +12,16 @@ namespace AIPlanningPilot.Dashboard.Tests.ViewModels;
 [TestFixture]
 public class HandoverViewModelTests
 {
-    private Mock<IConfigurationService> _mockConfig = null!;
-    private Mock<IHandoverParser> _mockParser = null!;
-    private Mock<IFileSystemService> _mockFs = null!;
+    private Mock<IConfigurationService> mockConfig = null!;
+    private Mock<IHandoverParser> mockParser = null!;
+    private Mock<IFileSystemService> mockFs = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _mockConfig = new Mock<IConfigurationService>(MockBehavior.Strict);
-        _mockParser = new Mock<IHandoverParser>(MockBehavior.Strict);
-        _mockFs = new Mock<IFileSystemService>(MockBehavior.Strict);
+        mockConfig = new Mock<IConfigurationService>(MockBehavior.Strict);
+        mockParser = new Mock<IHandoverParser>(MockBehavior.Strict);
+        mockFs = new Mock<IFileSystemService>(MockBehavior.Strict);
     }
 
     /// <summary>
@@ -30,18 +30,18 @@ public class HandoverViewModelTests
     [TearDown]
     public void TearDown()
     {
-        _mockConfig.VerifyAll();
-        _mockParser.VerifyAll();
-        _mockFs.VerifyAll();
+        mockConfig.VerifyAll();
+        mockParser.VerifyAll();
+        mockFs.VerifyAll();
     }
 
     [Test]
     public void LoadData_WhenHandoversExist_ShouldPopulateAndSelectFirst()
     {
         // Arrange
-        _mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
-        _mockFs.Setup(fs => fs.DirectoryExists(@"C:\root\handovers")).Returns(true);
-        _mockParser.Setup(p => p.ParseAll(@"C:\root\handovers")).Returns(
+        mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
+        mockFs.Setup(fs => fs.DirectoryExists(@"C:\root\handovers")).Returns(true);
+        mockParser.Setup(p => p.ParseAll(@"C:\root\handovers")).Returns(
         [
             new HandoverNotes
             {
@@ -52,7 +52,7 @@ public class HandoverViewModelTests
             }
         ]);
 
-        var vm = new HandoverViewModel(_mockConfig.Object, _mockParser.Object, _mockFs.Object);
+        var vm = new HandoverViewModel(mockConfig.Object, mockParser.Object, mockFs.Object);
 
         // Act
         vm.LoadData();
@@ -68,10 +68,10 @@ public class HandoverViewModelTests
     public void LoadData_WhenDirectoryMissing_ShouldNotThrow()
     {
         // Arrange
-        _mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
-        _mockFs.Setup(fs => fs.DirectoryExists(@"C:\root\handovers")).Returns(false);
+        mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
+        mockFs.Setup(fs => fs.DirectoryExists(@"C:\root\handovers")).Returns(false);
 
-        var vm = new HandoverViewModel(_mockConfig.Object, _mockParser.Object, _mockFs.Object);
+        var vm = new HandoverViewModel(mockConfig.Object, mockParser.Object, mockFs.Object);
 
         // Act
         vm.LoadData();
@@ -86,7 +86,7 @@ public class HandoverViewModelTests
     public void Constructor_WhenNullConfigurationService_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new HandoverViewModel(null!, _mockParser.Object, _mockFs.Object);
+        var act = () => new HandoverViewModel(null!, mockParser.Object, mockFs.Object);
 
         // Assert
         act.Should().Throw<ArgumentNullException>().WithParameterName("configurationService");
@@ -96,7 +96,7 @@ public class HandoverViewModelTests
     public void Constructor_WhenNullHandoverParser_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new HandoverViewModel(_mockConfig.Object, null!, _mockFs.Object);
+        var act = () => new HandoverViewModel(mockConfig.Object, null!, mockFs.Object);
 
         // Assert
         act.Should().Throw<ArgumentNullException>().WithParameterName("handoverParser");
@@ -106,7 +106,7 @@ public class HandoverViewModelTests
     public void Constructor_WhenNullFileSystemService_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new HandoverViewModel(_mockConfig.Object, _mockParser.Object, null!);
+        var act = () => new HandoverViewModel(mockConfig.Object, mockParser.Object, null!);
 
         // Assert
         act.Should().Throw<ArgumentNullException>().WithParameterName("fileSystemService");
@@ -116,9 +116,9 @@ public class HandoverViewModelTests
     public void LoadData_WhenMultipleHandovers_ShouldLoadAllAndSelectFirst()
     {
         // Arrange
-        _mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
-        _mockFs.Setup(fs => fs.DirectoryExists(@"C:\root\handovers")).Returns(true);
-        _mockParser.Setup(p => p.ParseAll(@"C:\root\handovers")).Returns(
+        mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
+        mockFs.Setup(fs => fs.DirectoryExists(@"C:\root\handovers")).Returns(true);
+        mockParser.Setup(p => p.ParseAll(@"C:\root\handovers")).Returns(
         [
             new HandoverNotes
             {
@@ -136,7 +136,7 @@ public class HandoverViewModelTests
             }
         ]);
 
-        var vm = new HandoverViewModel(_mockConfig.Object, _mockParser.Object, _mockFs.Object);
+        var vm = new HandoverViewModel(mockConfig.Object, mockParser.Object, mockFs.Object);
 
         // Act
         vm.LoadData();

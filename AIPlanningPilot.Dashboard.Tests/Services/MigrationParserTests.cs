@@ -11,7 +11,7 @@ namespace AIPlanningPilot.Dashboard.Tests.Services;
 [TestFixture]
 public class MigrationParserTests
 {
-    private Mock<IFileSystemService> _mockFs = null!;
+    private Mock<IFileSystemService> mockFs = null!;
     private MigrationParser _parser = null!;
 
     /// <summary>
@@ -20,8 +20,8 @@ public class MigrationParserTests
     [SetUp]
     public void SetUp()
     {
-        _mockFs = new Mock<IFileSystemService>(MockBehavior.Strict);
-        _parser = new MigrationParser(_mockFs.Object);
+        mockFs = new Mock<IFileSystemService>(MockBehavior.Strict);
+        _parser = new MigrationParser(mockFs.Object);
     }
 
     /// <summary>
@@ -30,7 +30,7 @@ public class MigrationParserTests
     [TearDown]
     public void TearDown()
     {
-        _mockFs.VerifyAll();
+        mockFs.VerifyAll();
     }
 
     /// <summary>
@@ -45,7 +45,7 @@ public class MigrationParserTests
             "| Order | Sales | Medium | 12 | Yes | Yes | In Progress | 2026-03-21 |",
             "| Product | Catalog | Complex | 25 | No | No | Not Started | |");
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -65,7 +65,7 @@ public class MigrationParserTests
     public void Parse_WhenEmptyFile_ShouldReturnEmptyList()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(string.Empty);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(string.Empty);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -82,7 +82,7 @@ public class MigrationParserTests
     {
         // Arrange
         var content = "# MIGRATION.md\n\nSome text without any table.\n";
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -103,7 +103,7 @@ public class MigrationParserTests
             "| Incomplete | Sales | Simple |",
             "| Order | Sales | Medium | 12 | Yes | Yes | In Progress | |");
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -124,7 +124,7 @@ public class MigrationParserTests
         var content = BuildMigrationContent(
             "| Entity1 | Domain1 | Simple | 5 | No | No | Not Started | |");
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -144,7 +144,7 @@ public class MigrationParserTests
         var content = BuildMigrationContent(
             "| Entity1 | Domain1 | Medium | 10 | No | No | Not Started | |");
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -164,7 +164,7 @@ public class MigrationParserTests
         var content = BuildMigrationContent(
             "| Entity1 | Domain1 | Complex | 25 | No | No | Not Started | |");
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -184,7 +184,7 @@ public class MigrationParserTests
         var content = BuildMigrationContent(
             "| Entity1 | Domain1 | Very Complex | 30 | No | No | Not Started | |");
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -204,7 +204,7 @@ public class MigrationParserTests
         var content = BuildMigrationContent(
             "| Entity1 | Domain1 | Simple | 5 | No | No | Done | 2026-03-20 |");
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -224,7 +224,7 @@ public class MigrationParserTests
         var content = BuildMigrationContent(
             "| Entity1 | Domain1 | Simple | 5 | No | No | In Progress | |");
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -244,7 +244,7 @@ public class MigrationParserTests
         var content = BuildMigrationContent(
             "| Entity1 | Domain1 | Simple | 5 | No | No | Not Started | |");
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -264,7 +264,7 @@ public class MigrationParserTests
         var content = BuildMigrationContent(
             "| Entity1 | Domain1 | Simple | 5 | No | No | Skipped | |");
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -284,7 +284,7 @@ public class MigrationParserTests
         var content = BuildMigrationContent(
             "| Entity1 | Domain1 | Simple | 5 | Yes | No | Not Started | |");
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -304,7 +304,7 @@ public class MigrationParserTests
         var content = BuildMigrationContent(
             "| Entity1 | Domain1 | Simple | 5 | No | No | Not Started | |");
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -324,7 +324,7 @@ public class MigrationParserTests
         var content = BuildMigrationContent(
             "| Entity1 | Domain1 | Simple | 5 | No | Yes | Not Started | |");
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -344,7 +344,7 @@ public class MigrationParserTests
         var content = BuildMigrationContent(
             "| Entity1 | Domain1 | Simple | 5 | No | No | Not Started | |");
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -364,7 +364,7 @@ public class MigrationParserTests
         var content = BuildMigrationContent(
             "| Entity1 | Domain1 | Simple | 5 | Yes | No | Done | 2026-03-20 |");
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -388,7 +388,7 @@ public class MigrationParserTests
 | Entity1 | Domain1 | Simple | 5 | No | No | Not Started |
 ";
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -408,7 +408,7 @@ public class MigrationParserTests
         var content = BuildMigrationContent(
             "| Entity1 | Domain1 | Simple | 15 | No | No | Not Started | |");
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");
@@ -428,7 +428,7 @@ public class MigrationParserTests
         var content = BuildMigrationContent(
             "| Entity1 | Domain1 | Simple | N/A | No | No | Not Started | |");
 
-        _mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("migration.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("migration.md");

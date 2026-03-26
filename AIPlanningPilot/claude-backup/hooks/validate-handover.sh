@@ -79,6 +79,15 @@ validate_handover() {
     WARNINGS="${WARNINGS}  ! Section 'From Last Session' appears empty\n"
   fi
 
+  # --- Session Log format check (optional, advisory) ---
+  if echo "$CONTENT" | grep -q "^## Session Log"; then
+    local BAD_DATES
+    BAD_DATES=$(echo "$CONTENT" | sed -n '/^## Session Log/,/^## /p' | grep '^### ' | grep -v '^### [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}' || true)
+    if [[ -n "$BAD_DATES" ]]; then
+      WARNINGS="${WARNINGS}  ! Session Log has entries not in ### YYYY-MM-DD format: ${BAD_DATES}\n"
+    fi
+  fi
+
   # --- Report via stderr (advisory) ---
   if [[ -n "$ERRORS" || -n "$WARNINGS" ]]; then
     echo "" >&2

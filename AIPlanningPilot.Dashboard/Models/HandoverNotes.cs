@@ -23,4 +23,7 @@ public class HandoverNotes
 
     /// <summary>Gets or sets the items from the "From Last Session" section.</summary>
     public List<string> FromLastSession { get; set; } = [];
+
+    /// <summary>Gets or sets the dated session log entries from the "Session Log" section.</summary>
+    public List<SessionLogEntry> SessionLog { get; set; } = [];
 }

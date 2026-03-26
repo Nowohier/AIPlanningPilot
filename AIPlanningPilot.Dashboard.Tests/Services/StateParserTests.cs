@@ -11,8 +11,8 @@ namespace AIPlanningPilot.Dashboard.Tests.Services;
 [TestFixture]
 public class StateParserTests
 {
-    private Mock<IFileSystemService> _mockFs = null!;
-    private Mock<IConfigurationService> _mockConfig = null!;
+    private Mock<IFileSystemService> mockFs = null!;
+    private Mock<IConfigurationService> mockConfig = null!;
     private StateParser _parser = null!;
     private string _sampleContent = null!;
 
@@ -22,10 +22,10 @@ public class StateParserTests
     [SetUp]
     public void SetUp()
     {
-        _mockFs = new Mock<IFileSystemService>(MockBehavior.Strict);
-        _mockConfig = new Mock<IConfigurationService>(MockBehavior.Strict);
-        _mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
-        _parser = new StateParser(_mockFs.Object, _mockConfig.Object);
+        mockFs = new Mock<IFileSystemService>(MockBehavior.Strict);
+        mockConfig = new Mock<IConfigurationService>(MockBehavior.Strict);
+        mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
+        _parser = new StateParser(mockFs.Object, mockConfig.Object);
         _sampleContent = File.ReadAllText(
             Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "sample-state.md"));
     }
@@ -36,7 +36,7 @@ public class StateParserTests
     [TearDown]
     public void TearDown()
     {
-        _mockFs.VerifyAll();
+        mockFs.VerifyAll();
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ public class StateParserTests
     public void Parse_WhenValidStateFile_ShouldExtractCurrentPhase()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
+        mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
 
         // Act
         var result = _parser.Parse("state.md");
@@ -63,7 +63,7 @@ public class StateParserTests
     public void Parse_WhenValidStateFile_ShouldExtractDayNumber()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
+        mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
 
         // Act
         var result = _parser.Parse("state.md");
@@ -79,7 +79,7 @@ public class StateParserTests
     public void Parse_WhenValidStateFile_ShouldExtractLastUpdated()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
+        mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
 
         // Act
         var result = _parser.Parse("state.md");
@@ -95,7 +95,7 @@ public class StateParserTests
     public void Parse_WhenValidStateFile_ShouldExtractBranch()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
+        mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
 
         // Act
         var result = _parser.Parse("state.md");
@@ -111,7 +111,7 @@ public class StateParserTests
     public void Parse_WhenNextActionsPresent_ShouldParseAllRows()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
+        mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
 
         // Act
         var result = _parser.Parse("state.md");
@@ -127,7 +127,7 @@ public class StateParserTests
     public void Parse_WhenNextActionsPresent_ShouldParseStatusCorrectly()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
+        mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
 
         // Act
         var result = _parser.Parse("state.md");
@@ -146,7 +146,7 @@ public class StateParserTests
     public void Parse_WhenPhaseProgressPresent_ShouldParseAllPhases()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
+        mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
 
         // Act
         var result = _parser.Parse("state.md");
@@ -164,7 +164,7 @@ public class StateParserTests
     public void Parse_WhenOpenDecisionsPresent_ShouldParseAll()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
+        mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
 
         // Act
         var result = _parser.Parse("state.md");
@@ -182,7 +182,7 @@ public class StateParserTests
     public void Parse_WhenTeamSectionPresent_ShouldExtractMembers()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
+        mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
 
         // Act
         var result = _parser.Parse("state.md");
@@ -199,7 +199,7 @@ public class StateParserTests
     public void Constructor_WhenNullFileSystem_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new StateParser(null!, _mockConfig.Object);
+        var act = () => new StateParser(null!, mockConfig.Object);
 
         // Assert
         act.Should().Throw<ArgumentNullException>()
@@ -213,7 +213,7 @@ public class StateParserTests
     public void Constructor_WhenNullConfigurationService_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new StateParser(_mockFs.Object, null!);
+        var act = () => new StateParser(mockFs.Object, null!);
 
         // Assert
         act.Should().Throw<ArgumentNullException>()
@@ -228,7 +228,7 @@ public class StateParserTests
     public void Parse_WhenThreeColumnPhaseProgressTable_ShouldParseWithoutPlanFile()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
+        mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
 
         // Act
         var result = _parser.Parse("state.md");
@@ -249,7 +249,7 @@ public class StateParserTests
     public void Parse_WhenPhaseProgressPresent_ShouldAssignOneBasedIndex()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
+        mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(_sampleContent);
 
         // Act
         var result = _parser.Parse("state.md");
@@ -301,13 +301,13 @@ First milestone.
         var prePhaseExpectedPath = Path.Combine(@"C:\root", "plans/pre-phase.md");
         var phase1ExpectedPath = Path.Combine(@"C:\root", "plans/phase1.md");
 
-        _mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(stateContent);
-        _mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
+        mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(stateContent);
+        mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
 
-        _mockFs.Setup(fs => fs.FileExists(prePhaseExpectedPath)).Returns(true);
-        _mockFs.Setup(fs => fs.ReadAllText(prePhaseExpectedPath)).Returns(planContent);
-        _mockFs.Setup(fs => fs.FileExists(phase1ExpectedPath)).Returns(true);
-        _mockFs.Setup(fs => fs.ReadAllText(phase1ExpectedPath)).Returns(planContent);
+        mockFs.Setup(fs => fs.FileExists(prePhaseExpectedPath)).Returns(true);
+        mockFs.Setup(fs => fs.ReadAllText(prePhaseExpectedPath)).Returns(planContent);
+        mockFs.Setup(fs => fs.FileExists(phase1ExpectedPath)).Returns(true);
+        mockFs.Setup(fs => fs.ReadAllText(phase1ExpectedPath)).Returns(planContent);
 
         // Act
         var result = _parser.Parse("state.md");
@@ -355,9 +355,9 @@ First milestone.
 ";
 
         var expectedPath = Path.Combine(@"C:\root", "plans/missing.md");
-        _mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(stateContent);
-        _mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
-        _mockFs.Setup(fs => fs.FileExists(expectedPath)).Returns(false);
+        mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(stateContent);
+        mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
+        mockFs.Setup(fs => fs.FileExists(expectedPath)).Returns(false);
 
         // Act
         var result = _parser.Parse("state.md");
@@ -391,7 +391,7 @@ First milestone.
 | **Phase 1** (Days 1-4) | In Progress | Analysis |  |
 ";
 
-        _mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(stateContent);
+        mockFs.Setup(fs => fs.ReadAllText("state.md")).Returns(stateContent);
 
         // Act
         var result = _parser.Parse("state.md");

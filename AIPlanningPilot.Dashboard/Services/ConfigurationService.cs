@@ -10,13 +10,17 @@ namespace AIPlanningPilot.Dashboard.Services;
 /// </summary>
 public class ConfigurationService : IConfigurationService
 {
+    private readonly IFileSystemService fileSystemService;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ConfigurationService"/> class.
     /// </summary>
     /// <param name="restructuringRootPath">The absolute path to the restructuring directory.</param>
-    public ConfigurationService(string restructuringRootPath)
+    /// <param name="fileSystemService">Service for file system access.</param>
+    public ConfigurationService(string restructuringRootPath, IFileSystemService fileSystemService)
     {
         RestructuringRootPath = restructuringRootPath ?? throw new ArgumentNullException(nameof(restructuringRootPath));
+        this.fileSystemService = fileSystemService ?? throw new ArgumentNullException(nameof(fileSystemService));
         ProjectName = ResolveProjectName();
     }
 
@@ -33,14 +37,14 @@ public class ConfigurationService : IConfigurationService
     private string ResolveProjectName()
     {
         var configPath = Path.Combine(RestructuringRootPath, "main", "project.json");
-        if (!File.Exists(configPath))
+        if (!fileSystemService.FileExists(configPath))
         {
             return string.Empty;
         }
 
         try
         {
-            var json = File.ReadAllText(configPath);
+            var json = fileSystemService.ReadAllText(configPath);
             var doc = JsonDocument.Parse(json);
 
             if (doc.RootElement.TryGetProperty("projectName", out var projectNameElement))

@@ -12,9 +12,9 @@ namespace AIPlanningPilot.Dashboard.Tests.ViewModels;
 [TestFixture]
 public class MigrationTrackerViewModelTests
 {
-    private Mock<IConfigurationService> _mockConfig = null!;
-    private Mock<IMigrationParser> _mockParser = null!;
-    private Mock<IFileSystemService> _mockFileSystem = null!;
+    private Mock<IConfigurationService> mockConfig = null!;
+    private Mock<IMigrationParser> mockParser = null!;
+    private Mock<IFileSystemService> mockFileSystem = null!;
 
     /// <summary>
     /// Initializes mock dependencies before each test.
@@ -22,9 +22,9 @@ public class MigrationTrackerViewModelTests
     [SetUp]
     public void SetUp()
     {
-        _mockConfig = new Mock<IConfigurationService>(MockBehavior.Strict);
-        _mockParser = new Mock<IMigrationParser>(MockBehavior.Strict);
-        _mockFileSystem = new Mock<IFileSystemService>(MockBehavior.Strict);
+        mockConfig = new Mock<IConfigurationService>(MockBehavior.Strict);
+        mockParser = new Mock<IMigrationParser>(MockBehavior.Strict);
+        mockFileSystem = new Mock<IFileSystemService>(MockBehavior.Strict);
     }
 
     /// <summary>
@@ -33,9 +33,9 @@ public class MigrationTrackerViewModelTests
     [TearDown]
     public void TearDown()
     {
-        _mockConfig.VerifyAll();
-        _mockParser.VerifyAll();
-        _mockFileSystem.VerifyAll();
+        mockConfig.VerifyAll();
+        mockParser.VerifyAll();
+        mockFileSystem.VerifyAll();
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ public class MigrationTrackerViewModelTests
     {
         // Arrange
         SetupConfigAndFileExists(true);
-        _mockParser.Setup(p => p.Parse(It.IsAny<string>())).Returns(new List<MigrationEntity>());
+        mockParser.Setup(p => p.Parse(It.IsAny<string>())).Returns(new List<MigrationEntity>());
 
         var vm = CreateViewModel();
 
@@ -85,7 +85,7 @@ public class MigrationTrackerViewModelTests
     {
         // Arrange
         SetupConfigAndFileExists(true);
-        _mockParser.Setup(p => p.Parse(It.IsAny<string>())).Throws(new InvalidOperationException("Parse error"));
+        mockParser.Setup(p => p.Parse(It.IsAny<string>())).Throws(new InvalidOperationException("Parse error"));
 
         var vm = CreateViewModel();
 
@@ -113,7 +113,7 @@ public class MigrationTrackerViewModelTests
         };
 
         SetupConfigAndFileExists(true);
-        _mockParser.Setup(p => p.Parse(It.IsAny<string>())).Returns(entities);
+        mockParser.Setup(p => p.Parse(It.IsAny<string>())).Returns(entities);
 
         var vm = CreateViewModel();
 
@@ -151,7 +151,7 @@ public class MigrationTrackerViewModelTests
         };
 
         SetupConfigAndFileExists(true);
-        _mockParser.Setup(p => p.Parse(It.IsAny<string>())).Returns(entities);
+        mockParser.Setup(p => p.Parse(It.IsAny<string>())).Returns(entities);
 
         var vm = CreateViewModel();
 
@@ -179,7 +179,7 @@ public class MigrationTrackerViewModelTests
         };
 
         SetupConfigAndFileExists(true);
-        _mockParser.Setup(p => p.Parse(It.IsAny<string>())).Returns(entities);
+        mockParser.Setup(p => p.Parse(It.IsAny<string>())).Returns(entities);
 
         var vm = CreateViewModel();
         vm.LoadData();
@@ -209,7 +209,7 @@ public class MigrationTrackerViewModelTests
         };
 
         SetupConfigAndFileExists(true);
-        _mockParser.Setup(p => p.Parse(It.IsAny<string>())).Returns(entities);
+        mockParser.Setup(p => p.Parse(It.IsAny<string>())).Returns(entities);
 
         var vm = CreateViewModel();
         vm.LoadData();
@@ -238,7 +238,7 @@ public class MigrationTrackerViewModelTests
         };
 
         SetupConfigAndFileExists(true);
-        _mockParser.Setup(p => p.Parse(It.IsAny<string>())).Returns(entities);
+        mockParser.Setup(p => p.Parse(It.IsAny<string>())).Returns(entities);
 
         var vm = CreateViewModel();
         vm.LoadData();
@@ -260,7 +260,7 @@ public class MigrationTrackerViewModelTests
     {
         // Arrange
         SetupConfigAndFileExists(true);
-        _mockParser.Setup(p => p.Parse(It.IsAny<string>())).Returns(new List<MigrationEntity>());
+        mockParser.Setup(p => p.Parse(It.IsAny<string>())).Returns(new List<MigrationEntity>());
 
         var vm = CreateViewModel();
 
@@ -290,7 +290,7 @@ public class MigrationTrackerViewModelTests
     public void Constructor_WhenNullConfigService_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new MigrationTrackerViewModel(null!, _mockParser.Object, _mockFileSystem.Object);
+        var act = () => new MigrationTrackerViewModel(null!, mockParser.Object, mockFileSystem.Object);
 
         // Assert
         act.Should().Throw<ArgumentNullException>()
@@ -304,7 +304,7 @@ public class MigrationTrackerViewModelTests
     public void Constructor_WhenNullMigrationParser_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new MigrationTrackerViewModel(_mockConfig.Object, null!, _mockFileSystem.Object);
+        var act = () => new MigrationTrackerViewModel(mockConfig.Object, null!, mockFileSystem.Object);
 
         // Assert
         act.Should().Throw<ArgumentNullException>()
@@ -318,7 +318,7 @@ public class MigrationTrackerViewModelTests
     public void Constructor_WhenNullFileSystemService_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new MigrationTrackerViewModel(_mockConfig.Object, _mockParser.Object, null!);
+        var act = () => new MigrationTrackerViewModel(mockConfig.Object, mockParser.Object, null!);
 
         // Assert
         act.Should().Throw<ArgumentNullException>()
@@ -331,8 +331,8 @@ public class MigrationTrackerViewModelTests
     /// <param name="fileExists">Whether the migration file should exist.</param>
     private void SetupConfigAndFileExists(bool fileExists)
     {
-        _mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
-        _mockFileSystem.Setup(fs => fs.FileExists(It.IsAny<string>())).Returns(fileExists);
+        mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
+        mockFileSystem.Setup(fs => fs.FileExists(It.IsAny<string>())).Returns(fileExists);
     }
 
     /// <summary>
@@ -380,7 +380,7 @@ public class MigrationTrackerViewModelTests
         };
 
         SetupConfigAndFileExists(true);
-        _mockParser.Setup(p => p.Parse(It.IsAny<string>())).Returns(entities);
+        mockParser.Setup(p => p.Parse(It.IsAny<string>())).Returns(entities);
 
         var vm = CreateViewModel();
         vm.LoadData();
@@ -401,8 +401,8 @@ public class MigrationTrackerViewModelTests
     private MigrationTrackerViewModel CreateViewModel()
     {
         return new MigrationTrackerViewModel(
-            _mockConfig.Object,
-            _mockParser.Object,
-            _mockFileSystem.Object);
+            mockConfig.Object,
+            mockParser.Object,
+            mockFileSystem.Object);
     }
 }

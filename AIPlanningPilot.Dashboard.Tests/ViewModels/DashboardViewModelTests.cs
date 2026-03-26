@@ -12,11 +12,11 @@ namespace AIPlanningPilot.Dashboard.Tests.ViewModels;
 [TestFixture]
 public class DashboardViewModelTests
 {
-    private Mock<IConfigurationService> _mockConfig = null!;
-    private Mock<IStateParser> _mockStateParser = null!;
-    private Mock<IHandoverParser> _mockHandoverParser = null!;
-    private Mock<IFileSystemService> _mockFileSystem = null!;
-    private Mock<INavigationService> _mockNavigation = null!;
+    private Mock<IConfigurationService> mockConfig = null!;
+    private Mock<IStateParser> mockStateParser = null!;
+    private Mock<IHandoverParser> mockHandoverParser = null!;
+    private Mock<IFileSystemService> mockFileSystem = null!;
+    private Mock<INavigationService> mockNavigation = null!;
 
     /// <summary>
     /// Initializes mock dependencies before each test.
@@ -24,11 +24,11 @@ public class DashboardViewModelTests
     [SetUp]
     public void SetUp()
     {
-        _mockConfig = new Mock<IConfigurationService>(MockBehavior.Strict);
-        _mockStateParser = new Mock<IStateParser>(MockBehavior.Strict);
-        _mockHandoverParser = new Mock<IHandoverParser>(MockBehavior.Strict);
-        _mockFileSystem = new Mock<IFileSystemService>(MockBehavior.Strict);
-        _mockNavigation = new Mock<INavigationService>(MockBehavior.Strict);
+        mockConfig = new Mock<IConfigurationService>(MockBehavior.Strict);
+        mockStateParser = new Mock<IStateParser>(MockBehavior.Strict);
+        mockHandoverParser = new Mock<IHandoverParser>(MockBehavior.Strict);
+        mockFileSystem = new Mock<IFileSystemService>(MockBehavior.Strict);
+        mockNavigation = new Mock<INavigationService>(MockBehavior.Strict);
     }
 
     /// <summary>
@@ -37,11 +37,11 @@ public class DashboardViewModelTests
     [TearDown]
     public void TearDown()
     {
-        _mockConfig.VerifyAll();
-        _mockStateParser.VerifyAll();
-        _mockHandoverParser.VerifyAll();
-        _mockFileSystem.VerifyAll();
-        _mockNavigation.VerifyAll();
+        mockConfig.VerifyAll();
+        mockStateParser.VerifyAll();
+        mockHandoverParser.VerifyAll();
+        mockFileSystem.VerifyAll();
+        mockNavigation.VerifyAll();
     }
 
     /// <summary>
@@ -51,17 +51,17 @@ public class DashboardViewModelTests
     public void LoadData_WhenAllFilesExist_ShouldPopulateAllData()
     {
         // Arrange
-        _mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
+        mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
 
         var statePath = Path.Combine(@"C:\root", "main", "STATE.md");
         var handoversDir = Path.Combine(@"C:\root", "handovers");
 
-        _mockFileSystem.Setup(fs => fs.FileExists(statePath)).Returns(true);
-        _mockFileSystem.Setup(fs => fs.DirectoryExists(handoversDir)).Returns(true);
+        mockFileSystem.Setup(fs => fs.FileExists(statePath)).Returns(true);
+        mockFileSystem.Setup(fs => fs.DirectoryExists(handoversDir)).Returns(true);
 
         var phaseProgressItem = new PhaseProgressItem { PhaseName = "Pre-Phase", Status = "Done" };
 
-        _mockStateParser.Setup(p => p.Parse(statePath)).Returns(new ProjectState
+        mockStateParser.Setup(p => p.Parse(statePath)).Returns(new ProjectState
         {
             CurrentPhase = "Phase 1",
             Day = 3,
@@ -73,7 +73,7 @@ public class DashboardViewModelTests
             TeamMembers = ["Chris"]
         });
 
-        _mockHandoverParser.Setup(p => p.ParseAll(handoversDir)).Returns(
+        mockHandoverParser.Setup(p => p.ParseAll(handoversDir)).Returns(
         [
             new HandoverNotes
             {
@@ -112,15 +112,15 @@ public class DashboardViewModelTests
     public void LoadData_WhenStateFileMissing_ShouldStillLoadHandoverData()
     {
         // Arrange
-        _mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
+        mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
 
         var statePath = Path.Combine(@"C:\root", "main", "STATE.md");
         var handoversDir = Path.Combine(@"C:\root", "handovers");
 
-        _mockFileSystem.Setup(fs => fs.FileExists(statePath)).Returns(false);
-        _mockFileSystem.Setup(fs => fs.DirectoryExists(handoversDir)).Returns(true);
+        mockFileSystem.Setup(fs => fs.FileExists(statePath)).Returns(false);
+        mockFileSystem.Setup(fs => fs.DirectoryExists(handoversDir)).Returns(true);
 
-        _mockHandoverParser.Setup(p => p.ParseAll(handoversDir)).Returns(
+        mockHandoverParser.Setup(p => p.ParseAll(handoversDir)).Returns(
         [
             new HandoverNotes { DeveloperName = "Chris", ForNextSession = ["Item 1"] }
         ]);
@@ -144,7 +144,7 @@ public class DashboardViewModelTests
     public void LoadData_WhenExceptionThrown_ShouldSetErrorMessage()
     {
         // Arrange
-        _mockConfig.Setup(c => c.RestructuringRootPath).Throws(new InvalidOperationException("Config not set"));
+        mockConfig.Setup(c => c.RestructuringRootPath).Throws(new InvalidOperationException("Config not set"));
 
         var vm = CreateViewModel();
 
@@ -163,18 +163,18 @@ public class DashboardViewModelTests
     public void LoadData_WhenStateHasPhases_ShouldAutoSelectFirstPhase()
     {
         // Arrange
-        _mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
+        mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
 
         var statePath = Path.Combine(@"C:\root", "main", "STATE.md");
         var handoversDir = Path.Combine(@"C:\root", "handovers");
 
-        _mockFileSystem.Setup(fs => fs.FileExists(statePath)).Returns(true);
-        _mockFileSystem.Setup(fs => fs.DirectoryExists(handoversDir)).Returns(false);
+        mockFileSystem.Setup(fs => fs.FileExists(statePath)).Returns(true);
+        mockFileSystem.Setup(fs => fs.DirectoryExists(handoversDir)).Returns(false);
 
         var firstPhase = new PhaseProgressItem { PhaseName = "Pre-Phase", Status = "Done" };
         var secondPhase = new PhaseProgressItem { PhaseName = "Phase 1", Status = "In Progress" };
 
-        _mockStateParser.Setup(p => p.Parse(statePath)).Returns(new ProjectState
+        mockStateParser.Setup(p => p.Parse(statePath)).Returns(new ProjectState
         {
             CurrentPhase = "Phase 1",
             Day = 2,
@@ -203,15 +203,15 @@ public class DashboardViewModelTests
     public void LoadData_WhenStateHasNoPhases_ShouldSetSelectedPhaseToNull()
     {
         // Arrange
-        _mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
+        mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
 
         var statePath = Path.Combine(@"C:\root", "main", "STATE.md");
         var handoversDir = Path.Combine(@"C:\root", "handovers");
 
-        _mockFileSystem.Setup(fs => fs.FileExists(statePath)).Returns(true);
-        _mockFileSystem.Setup(fs => fs.DirectoryExists(handoversDir)).Returns(false);
+        mockFileSystem.Setup(fs => fs.FileExists(statePath)).Returns(true);
+        mockFileSystem.Setup(fs => fs.DirectoryExists(handoversDir)).Returns(false);
 
-        _mockStateParser.Setup(p => p.Parse(statePath)).Returns(new ProjectState
+        mockStateParser.Setup(p => p.Parse(statePath)).Returns(new ProjectState
         {
             CurrentPhase = "Phase 1",
             Day = 1,
@@ -239,15 +239,15 @@ public class DashboardViewModelTests
     public void LoadData_WhenHandoverExists_ShouldUppercaseDeveloperName()
     {
         // Arrange
-        _mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
+        mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
 
         var statePath = Path.Combine(@"C:\root", "main", "STATE.md");
         var handoversDir = Path.Combine(@"C:\root", "handovers");
 
-        _mockFileSystem.Setup(fs => fs.FileExists(statePath)).Returns(false);
-        _mockFileSystem.Setup(fs => fs.DirectoryExists(handoversDir)).Returns(true);
+        mockFileSystem.Setup(fs => fs.FileExists(statePath)).Returns(false);
+        mockFileSystem.Setup(fs => fs.DirectoryExists(handoversDir)).Returns(true);
 
-        _mockHandoverParser.Setup(p => p.ParseAll(handoversDir)).Returns(
+        mockHandoverParser.Setup(p => p.ParseAll(handoversDir)).Returns(
         [
             new HandoverNotes { DeveloperName = "alice", ForNextSession = ["Task A"] }
         ]);
@@ -268,13 +268,13 @@ public class DashboardViewModelTests
     public void LoadData_WhenHandoversDirectoryMissing_ShouldNotPopulateHandoverData()
     {
         // Arrange
-        _mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
+        mockConfig.Setup(c => c.RestructuringRootPath).Returns(@"C:\root");
 
         var statePath = Path.Combine(@"C:\root", "main", "STATE.md");
         var handoversDir = Path.Combine(@"C:\root", "handovers");
 
-        _mockFileSystem.Setup(fs => fs.FileExists(statePath)).Returns(false);
-        _mockFileSystem.Setup(fs => fs.DirectoryExists(handoversDir)).Returns(false);
+        mockFileSystem.Setup(fs => fs.FileExists(statePath)).Returns(false);
+        mockFileSystem.Setup(fs => fs.DirectoryExists(handoversDir)).Returns(false);
 
         var vm = CreateViewModel();
 
@@ -296,10 +296,10 @@ public class DashboardViewModelTests
         // Arrange & Act
         var act = () => new DashboardViewModel(
             null!,
-            _mockStateParser.Object,
-            _mockHandoverParser.Object,
-            _mockFileSystem.Object,
-            _mockNavigation.Object);
+            mockStateParser.Object,
+            mockHandoverParser.Object,
+            mockFileSystem.Object,
+            mockNavigation.Object);
 
         // Assert
         act.Should().Throw<ArgumentNullException>()
@@ -314,11 +314,11 @@ public class DashboardViewModelTests
     {
         // Arrange & Act
         var act = () => new DashboardViewModel(
-            _mockConfig.Object,
+            mockConfig.Object,
             null!,
-            _mockHandoverParser.Object,
-            _mockFileSystem.Object,
-            _mockNavigation.Object);
+            mockHandoverParser.Object,
+            mockFileSystem.Object,
+            mockNavigation.Object);
 
         // Assert
         act.Should().Throw<ArgumentNullException>()
@@ -333,11 +333,11 @@ public class DashboardViewModelTests
     {
         // Arrange & Act
         var act = () => new DashboardViewModel(
-            _mockConfig.Object,
-            _mockStateParser.Object,
+            mockConfig.Object,
+            mockStateParser.Object,
             null!,
-            _mockFileSystem.Object,
-            _mockNavigation.Object);
+            mockFileSystem.Object,
+            mockNavigation.Object);
 
         // Assert
         act.Should().Throw<ArgumentNullException>()
@@ -352,11 +352,11 @@ public class DashboardViewModelTests
     {
         // Arrange & Act
         var act = () => new DashboardViewModel(
-            _mockConfig.Object,
-            _mockStateParser.Object,
-            _mockHandoverParser.Object,
+            mockConfig.Object,
+            mockStateParser.Object,
+            mockHandoverParser.Object,
             null!,
-            _mockNavigation.Object);
+            mockNavigation.Object);
 
         // Assert
         act.Should().Throw<ArgumentNullException>()
@@ -371,10 +371,10 @@ public class DashboardViewModelTests
     {
         // Arrange & Act
         var act = () => new DashboardViewModel(
-            _mockConfig.Object,
-            _mockStateParser.Object,
-            _mockHandoverParser.Object,
-            _mockFileSystem.Object,
+            mockConfig.Object,
+            mockStateParser.Object,
+            mockHandoverParser.Object,
+            mockFileSystem.Object,
             null!);
 
         // Assert
@@ -391,7 +391,7 @@ public class DashboardViewModelTests
         // Arrange
         var planFilePath = @"C:\root\plans\phase1.md";
         var phase = new PhaseProgressItem { PhaseName = "Phase 1", PlanFilePath = planFilePath };
-        _mockNavigation.Setup(n => n.NavigateToFile(planFilePath));
+        mockNavigation.Setup(n => n.NavigateToFile(planFilePath));
 
         var vm = CreateViewModel();
 
@@ -399,7 +399,7 @@ public class DashboardViewModelTests
         vm.OpenPhaseDocument(phase);
 
         // Assert
-        _mockNavigation.Verify(n => n.NavigateToFile(planFilePath), Times.Once);
+        mockNavigation.Verify(n => n.NavigateToFile(planFilePath), Times.Once);
     }
 
     /// <summary>
@@ -411,7 +411,7 @@ public class DashboardViewModelTests
         // Arrange
         var planFilePath = @"C:\root\plans\pre-phase.md";
         var selectedPhase = new PhaseProgressItem { PhaseName = "Pre-Phase", PlanFilePath = planFilePath };
-        _mockNavigation.Setup(n => n.NavigateToFile(planFilePath));
+        mockNavigation.Setup(n => n.NavigateToFile(planFilePath));
 
         var vm = CreateViewModel();
         vm.SelectedPhase = selectedPhase;
@@ -420,7 +420,7 @@ public class DashboardViewModelTests
         vm.OpenPhaseDocument(null);
 
         // Assert
-        _mockNavigation.Verify(n => n.NavigateToFile(planFilePath), Times.Once);
+        mockNavigation.Verify(n => n.NavigateToFile(planFilePath), Times.Once);
     }
 
     /// <summary>
@@ -429,10 +429,10 @@ public class DashboardViewModelTests
     private DashboardViewModel CreateViewModel()
     {
         return new DashboardViewModel(
-            _mockConfig.Object,
-            _mockStateParser.Object,
-            _mockHandoverParser.Object,
-            _mockFileSystem.Object,
-            _mockNavigation.Object);
+            mockConfig.Object,
+            mockStateParser.Object,
+            mockHandoverParser.Object,
+            mockFileSystem.Object,
+            mockNavigation.Object);
     }
 }

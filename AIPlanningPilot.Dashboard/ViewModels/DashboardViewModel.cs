@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using AIPlanningPilot.Dashboard.Extensions;
 using AIPlanningPilot.Dashboard.Models;
 using AIPlanningPilot.Dashboard.Services;
 
@@ -156,15 +157,15 @@ public partial class DashboardViewModel : ObservableObject
         LastUpdated = state.LastUpdated;
         Branch = state.Branch;
 
-        ReplaceAll(NextActions, state.NextActions);
+        NextActions.ReplaceWith(state.NextActions);
         PendingActionCount = state.NextActions.Count(a => a.Status != ActionStatus.Done);
 
-        ReplaceAll(PhaseProgress, state.PhaseProgress);
+        PhaseProgress.ReplaceWith(state.PhaseProgress);
 
-        ReplaceAll(OpenDecisions, state.OpenDecisions);
+        OpenDecisions.ReplaceWith(state.OpenDecisions);
         OpenDecisionCount = state.OpenDecisions.Count;
 
-        ReplaceAll(TeamMembers, state.TeamMembers);
+        TeamMembers.ReplaceWith(state.TeamMembers);
 
         // Auto-select first phase
         SelectedPhase = PhaseProgress.FirstOrDefault();
@@ -188,19 +189,8 @@ public partial class DashboardViewModel : ObservableObject
         {
             var primary = handovers[0];
             HandoverDeveloper = primary.DeveloperName.ToUpperInvariant();
-            ReplaceAll(HandoverNextItems, primary.ForNextSession);
+            HandoverNextItems.ReplaceWith(primary.ForNextSession);
         }
     }
 
-    /// <summary>
-    /// Replaces all items in the target collection with items from the source.
-    /// </summary>
-    private static void ReplaceAll<T>(ObservableCollection<T> target, IEnumerable<T> source)
-    {
-        target.Clear();
-        foreach (var item in source)
-        {
-            target.Add(item);
-        }
-    }
 }

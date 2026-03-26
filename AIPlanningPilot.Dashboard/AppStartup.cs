@@ -1,3 +1,4 @@
+using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using AIPlanningPilot.Dashboard.Services;
 using AIPlanningPilot.Dashboard.ViewModels;
@@ -17,20 +18,23 @@ internal static class AppStartup
     /// <param name="restructuringRootPath">The absolute path to the restructuring directory.</param>
     public static void ConfigureServices(IServiceCollection services, string restructuringRootPath)
     {
-        // Configuration
-        services.AddSingleton<IConfigurationService>(new ConfigurationService(restructuringRootPath));
+        // Core services
+        services.AddSingleton<IFileSystemService, FileSystemService>();
+
+        // Configuration (depends on IFileSystemService)
+        services.AddSingleton<IConfigurationService>(sp =>
+            new ConfigurationService(restructuringRootPath, sp.GetRequiredService<IFileSystemService>()));
 
         // Settings
         services.AddSingleton<ISettingsService, SettingsService>();
-
-        // Core services
-        services.AddSingleton<IFileSystemService, FileSystemService>();
         services.AddSingleton<IMarkdownRenderer, MarkdownRendererService>();
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddTransient<ISearchService, SearchService>();
-        services.AddSingleton<IFileWatcherService, FileWatcherService>();
+        services.AddSingleton<IFileWatcherService>(_ =>
+            new FileWatcherService(action => Application.Current?.Dispatcher.BeginInvoke(action)));
         services.AddSingleton<IDocxRenderer, DocxRendererService>();
         services.AddSingleton<IDrawioRenderer, DrawioRendererService>();
+        services.AddSingleton<IFileViewerCoordinator, FileViewerCoordinator>();
         services.AddSingleton<Func<SettingsViewModel>>(sp => () => sp.GetRequiredService<SettingsViewModel>());
         services.AddSingleton<IDialogService, DialogService>();
 

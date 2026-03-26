@@ -290,6 +290,116 @@ public class MarkdownTableParserTests
     }
 
     [Test]
+    public void ExtractSessionLogEntries_WhenSessionLogExists_ShouldParseDates()
+    {
+        // Arrange
+        var md = """
+            ## Session Log
+
+            ### 2026-03-26
+            - Did some work
+            - Fixed a bug
+
+            ### 2026-03-25
+            - Initial setup
+            """;
+
+        // Act
+        var result = MarkdownTableParser.ExtractSessionLogEntries(md);
+
+        // Assert
+        result.Should().HaveCount(2);
+        result[0].Date.Should().Be("2026-03-26");
+        result[1].Date.Should().Be("2026-03-25");
+    }
+
+    [Test]
+    public void ExtractSessionLogEntries_WhenSessionLogExists_ShouldParseItems()
+    {
+        // Arrange
+        var md = """
+            ## Session Log
+
+            ### 2026-03-26
+            - Did some work
+            - Fixed a bug
+            - Files: foo.cs, bar.cs
+
+            ### 2026-03-25
+            - Initial setup
+            """;
+
+        // Act
+        var result = MarkdownTableParser.ExtractSessionLogEntries(md);
+
+        // Assert
+        result[0].Items.Should().HaveCount(3);
+        result[0].Items[0].Should().Be("Did some work");
+        result[0].Items[1].Should().Be("Fixed a bug");
+        result[0].Items[2].Should().Be("Files: foo.cs, bar.cs");
+        result[1].Items.Should().HaveCount(1);
+        result[1].Items[0].Should().Be("Initial setup");
+    }
+
+    [Test]
+    public void ExtractSessionLogEntries_WhenNoSessionLog_ShouldReturnEmpty()
+    {
+        // Arrange
+        var md = """
+            ## For Next Session
+            - Some items
+
+            ## From Last Session
+            Some text.
+            """;
+
+        // Act
+        var result = MarkdownTableParser.ExtractSessionLogEntries(md);
+
+        // Assert
+        result.Should().BeEmpty();
+    }
+
+    [Test]
+    public void ExtractSessionLogEntries_WhenEmptySessionLog_ShouldReturnEmpty()
+    {
+        // Arrange
+        var md = """
+            ## Session Log
+
+            _No sessions recorded yet._
+            """;
+
+        // Act
+        var result = MarkdownTableParser.ExtractSessionLogEntries(md);
+
+        // Assert
+        result.Should().BeEmpty();
+    }
+
+    [Test]
+    public void ExtractSessionLogEntries_WhenFollowedByAnotherSection_ShouldStopAtNextH2()
+    {
+        // Arrange
+        var md = """
+            ## Session Log
+
+            ### 2026-03-26
+            - Did some work
+
+            ## Some Other Section
+            - Not a session log entry
+            """;
+
+        // Act
+        var result = MarkdownTableParser.ExtractSessionLogEntries(md);
+
+        // Assert
+        result.Should().HaveCount(1);
+        result[0].Items.Should().HaveCount(1);
+    }
+
+    [Test]
     public void ExtractTableUnderHeading_WhenHeaderOnlyNoDataRows_ShouldReturnEmpty()
     {
         // Arrange

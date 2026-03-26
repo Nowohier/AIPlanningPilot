@@ -69,7 +69,8 @@ public partial class HandoverParser : IHandoverParser
             ForNextSession = MarkdownTableParser.ExtractItemsUnderHeading(content, ParserConstants.SectionForNextSession),
             DecisionsAndFindings = MarkdownTableParser.ExtractBulletListUnderHeading(content, ParserConstants.SectionDecisionsAndFindings),
             OpenThreads = MarkdownTableParser.ExtractBulletListUnderHeading(content, ParserConstants.SectionOpenThreads),
-            FromLastSession = MarkdownTableParser.ExtractItemsUnderHeading(content, ParserConstants.SectionFromLastSession)
+            FromLastSession = MarkdownTableParser.ExtractItemsUnderHeading(content, ParserConstants.SectionFromLastSession),
+            SessionLog = MarkdownTableParser.ExtractSessionLogEntries(content)
         };
     }
 

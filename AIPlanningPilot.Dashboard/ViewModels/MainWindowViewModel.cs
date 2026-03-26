@@ -22,8 +22,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     private readonly IMarkdownRenderer markdownRenderer;
     private readonly IConfigurationService configurationService;
     private readonly IFileWatcherService fileWatcherService;
-    private readonly IDocxRenderer docxRenderer;
-    private readonly IDrawioRenderer drawioRenderer;
+    private readonly IFileViewerCoordinator fileViewerCoordinator;
     private readonly IDialogService dialogService;
 
     /// <summary>
@@ -127,8 +126,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     /// <param name="searchViewModel">The search ViewModel.</param>
     /// <param name="migrationTrackerViewModel">The migration tracker ViewModel.</param>
     /// <param name="fileWatcherService">Service for watching file changes.</param>
-    /// <param name="docxRenderer">Service for rendering .docx files.</param>
-    /// <param name="drawioRenderer">Service for rendering .drawio files.</param>
+    /// <param name="fileViewerCoordinator">Service for dispatching files to the appropriate viewer.</param>
     /// <param name="dialogService">Service for showing application dialogs.</param>
     /// <param name="treeViewViewModel">The tree view ViewModel for the left panel.</param>
     /// <param name="markdownViewerViewModel">The markdown viewer ViewModel.</param>
@@ -145,8 +143,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         SearchViewModel searchViewModel,
         MigrationTrackerViewModel migrationTrackerViewModel,
         IFileWatcherService fileWatcherService,
-        IDocxRenderer docxRenderer,
-        IDrawioRenderer drawioRenderer,
+        IFileViewerCoordinator fileViewerCoordinator,
         IDialogService dialogService,
         TreeViewViewModel treeViewViewModel,
         MarkdownViewerViewModel markdownViewerViewModel,
@@ -157,8 +154,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         this.markdownRenderer = markdownRenderer ?? throw new ArgumentNullException(nameof(markdownRenderer));
         this.configurationService = configurationService ?? throw new ArgumentNullException(nameof(configurationService));
         this.fileWatcherService = fileWatcherService ?? throw new ArgumentNullException(nameof(fileWatcherService));
-        this.docxRenderer = docxRenderer ?? throw new ArgumentNullException(nameof(docxRenderer));
-        this.drawioRenderer = drawioRenderer ?? throw new ArgumentNullException(nameof(drawioRenderer));
+        this.fileViewerCoordinator = fileViewerCoordinator ?? throw new ArgumentNullException(nameof(fileViewerCoordinator));
         this.dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         Dashboard = dashboardViewModel ?? throw new ArgumentNullException(nameof(dashboardViewModel));
         DecisionTracker = decisionTrackerViewModel ?? throw new ArgumentNullException(nameof(decisionTrackerViewModel));
@@ -265,35 +261,14 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     /// <param name="filePath">The absolute path to the file to display.</param>
     public void NavigateToFile(string filePath)
     {
-        if (string.IsNullOrEmpty(filePath) || !fileSystemService.FileExists(filePath))
+        var viewModel = fileViewerCoordinator.OpenFile(filePath);
+        if (viewModel is null)
         {
             return;
         }
 
         CurrentFilePath = filePath;
-        var extension = Path.GetExtension(filePath).ToLowerInvariant();
-
-        switch (extension)
-        {
-            case ".md":
-                MarkdownViewer.LoadFile(filePath);
-                ActiveContentViewModel = MarkdownViewer;
-                break;
-            case ".docx":
-                MarkdownViewer.LoadHtml(docxRenderer.RenderDocx(filePath), filePath);
-                ActiveContentViewModel = MarkdownViewer;
-                break;
-            case ".drawio":
-                var drawioXml = fileSystemService.ReadAllText(filePath);
-                MarkdownViewer.LoadHtml(drawioRenderer.RenderDrawio(drawioXml), filePath);
-                ActiveContentViewModel = MarkdownViewer;
-                break;
-            default:
-                CodeViewer.LoadFile(filePath);
-                ActiveContentViewModel = CodeViewer;
-                break;
-        }
-
+        ActiveContentViewModel = viewModel;
         SelectedView = ActiveView.File;
         Search.HideOverlay();
         TreeView.RevealAndSelect(filePath);

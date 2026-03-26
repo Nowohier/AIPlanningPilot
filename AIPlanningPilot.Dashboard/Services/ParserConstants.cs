@@ -64,21 +64,8 @@ internal static class ParserConstants
     /// <summary>From Last Session section heading in handover files.</summary>
     public const string SectionFromLastSession = "From Last Session";
 
-    // -- Overview section headings --
-
-    /// <summary>Risk Register section heading in plan/overview.md.</summary>
-    public const string SectionRiskRegister = "Risk Register";
-
-    // -- Analysis section headings --
-
-    /// <summary>Entity Counts section heading in analysis/quick-ref.md.</summary>
-    public const string SectionEntityCounts = "Entity Counts";
-
-    /// <summary>Key Numbers section heading in analysis/quick-ref.md.</summary>
-    public const string SectionKeyNumbers = "Key Numbers";
-
-    /// <summary>Migration Order section heading in analysis/quick-ref.md.</summary>
-    public const string SectionMigrationOrder = "Migration Order";
+    /// <summary>Session Log section heading in handover files.</summary>
+    public const string SectionSessionLog = "Session Log";
 
     // -- File paths relative to restructuring root --
 
@@ -117,9 +104,4 @@ internal static class ParserConstants
 
     /// <summary>Default markdown renderer theme name.</summary>
     public const string DefaultThemeName = "GitHub Light";
-
-    // -- Tab indices --
-
-    /// <summary>Index of the Files tab in the main tab control.</summary>
-    public const int TabIndexFiles = 1;
 }

@@ -11,15 +11,15 @@ namespace AIPlanningPilot.Dashboard.Tests.Services;
 [TestFixture]
 public class DecisionParserTests
 {
-    private Mock<IFileSystemService> _mockFs = null!;
+    private Mock<IFileSystemService> mockFs = null!;
     private DecisionParser _parser = null!;
     private string _sampleAdrContent = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _mockFs = new Mock<IFileSystemService>(MockBehavior.Strict);
-        _parser = new DecisionParser(_mockFs.Object);
+        mockFs = new Mock<IFileSystemService>(MockBehavior.Strict);
+        _parser = new DecisionParser(mockFs.Object);
         _sampleAdrContent = File.ReadAllText(
             Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "sample-adr.md"));
     }
@@ -27,7 +27,7 @@ public class DecisionParserTests
     [TearDown]
     public void TearDown()
     {
-        _mockFs.VerifyAll();
+        mockFs.VerifyAll();
     }
 
     [Test]
@@ -90,8 +90,8 @@ public class DecisionParserTests
     public void ParseAll_WhenDirectoryDoesNotExist_ShouldReturnEmpty()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.FileExists(@"C:\decisions\INDEX.md")).Returns(false);
-        _mockFs.Setup(fs => fs.DirectoryExists(@"C:\decisions")).Returns(false);
+        mockFs.Setup(fs => fs.FileExists(@"C:\decisions\INDEX.md")).Returns(false);
+        mockFs.Setup(fs => fs.DirectoryExists(@"C:\decisions")).Returns(false);
 
         // Act
         var result = _parser.ParseAll(@"C:\decisions");
@@ -112,10 +112,10 @@ public class DecisionParserTests
             | 4 | Quality standards | 2026-03-05 | Frontend, Backend |
             """;
 
-        _mockFs.Setup(fs => fs.FileExists(@"C:\decisions\INDEX.md")).Returns(true);
-        _mockFs.Setup(fs => fs.ReadAllText(@"C:\decisions\INDEX.md")).Returns(indexContent);
-        _mockFs.Setup(fs => fs.DirectoryExists(@"C:\decisions")).Returns(true);
-        _mockFs.Setup(fs => fs.GetDirectoryTree(@"C:\decisions", false))
+        mockFs.Setup(fs => fs.FileExists(@"C:\decisions\INDEX.md")).Returns(true);
+        mockFs.Setup(fs => fs.ReadAllText(@"C:\decisions\INDEX.md")).Returns(indexContent);
+        mockFs.Setup(fs => fs.DirectoryExists(@"C:\decisions")).Returns(true);
+        mockFs.Setup(fs => fs.GetDirectoryTree(@"C:\decisions", false))
             .Returns(
             [
                 new FileTreeNode
@@ -126,7 +126,7 @@ public class DecisionParserTests
                     LastModified = DateTime.UtcNow
                 }
             ]);
-        _mockFs.Setup(fs => fs.ReadAllText(@"C:\decisions\004-quality-standards.md"))
+        mockFs.Setup(fs => fs.ReadAllText(@"C:\decisions\004-quality-standards.md"))
             .Returns(_sampleAdrContent);
 
         // Act
@@ -151,9 +151,9 @@ public class DecisionParserTests
             This file does not follow the ADR title convention.
             """;
 
-        _mockFs.Setup(fs => fs.FileExists(@"C:\decisions\INDEX.md")).Returns(false);
-        _mockFs.Setup(fs => fs.DirectoryExists(@"C:\decisions")).Returns(true);
-        _mockFs.Setup(fs => fs.GetDirectoryTree(@"C:\decisions", false))
+        mockFs.Setup(fs => fs.FileExists(@"C:\decisions\INDEX.md")).Returns(false);
+        mockFs.Setup(fs => fs.DirectoryExists(@"C:\decisions")).Returns(true);
+        mockFs.Setup(fs => fs.GetDirectoryTree(@"C:\decisions", false))
             .Returns(
             [
                 new FileTreeNode
@@ -164,7 +164,7 @@ public class DecisionParserTests
                     LastModified = DateTime.UtcNow
                 }
             ]);
-        _mockFs.Setup(fs => fs.ReadAllText(@"C:\decisions\005-invalid-title.md"))
+        mockFs.Setup(fs => fs.ReadAllText(@"C:\decisions\005-invalid-title.md"))
             .Returns(invalidAdrContent);
 
         // Act
@@ -189,9 +189,9 @@ public class DecisionParserTests
     /// </summary>
     private void SetupDecisionsDirectory()
     {
-        _mockFs.Setup(fs => fs.FileExists(@"C:\decisions\INDEX.md")).Returns(false);
-        _mockFs.Setup(fs => fs.DirectoryExists(@"C:\decisions")).Returns(true);
-        _mockFs.Setup(fs => fs.GetDirectoryTree(@"C:\decisions", false))
+        mockFs.Setup(fs => fs.FileExists(@"C:\decisions\INDEX.md")).Returns(false);
+        mockFs.Setup(fs => fs.DirectoryExists(@"C:\decisions")).Returns(true);
+        mockFs.Setup(fs => fs.GetDirectoryTree(@"C:\decisions", false))
             .Returns(
             [
                 new FileTreeNode
@@ -202,7 +202,7 @@ public class DecisionParserTests
                     LastModified = DateTime.UtcNow
                 }
             ]);
-        _mockFs.Setup(fs => fs.ReadAllText(@"C:\decisions\004-quality-standards.md"))
+        mockFs.Setup(fs => fs.ReadAllText(@"C:\decisions\004-quality-standards.md"))
             .Returns(_sampleAdrContent);
     }
 }

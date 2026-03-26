@@ -12,20 +12,20 @@ namespace AIPlanningPilot.Dashboard.Tests.Services;
 [Apartment(ApartmentState.STA)]
 public class FileWatcherServiceTests
 {
-    private FileWatcherService _sut = null!;
-    private string _testDataPath = null!;
+    private FileWatcherService sut = null!;
+    private string testDataPath = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _sut = new FileWatcherService();
-        _testDataPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData");
+        sut = new FileWatcherService(action => action());
+        testDataPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData");
     }
 
     [TearDown]
     public void TearDown()
     {
-        _sut.Dispose();
+        sut.Dispose();
     }
 
     [Test]
@@ -34,50 +34,50 @@ public class FileWatcherServiceTests
         // Arrange -- TestData directory exists
 
         // Act
-        _sut.Start(_testDataPath);
+        sut.Start(testDataPath);
 
         // Assert
-        _sut.IsWatching.Should().BeTrue();
+        sut.IsWatching.Should().BeTrue();
     }
 
     [Test]
     public void Stop_WhenWatching_ShouldSetIsWatchingFalse()
     {
         // Arrange
-        _sut.Start(_testDataPath);
-        _sut.IsWatching.Should().BeTrue("precondition: watcher should be active");
+        sut.Start(testDataPath);
+        sut.IsWatching.Should().BeTrue("precondition: watcher should be active");
 
         // Act
-        _sut.Stop();
+        sut.Stop();
 
         // Assert
-        _sut.IsWatching.Should().BeFalse();
+        sut.IsWatching.Should().BeFalse();
     }
 
     [Test]
     public void Start_WhenDirectoryDoesNotExist_ShouldNotWatch()
     {
         // Arrange
-        var nonExistentPath = Path.Combine(_testDataPath, "does-not-exist-watcher-dir");
+        var nonExistentPath = Path.Combine(testDataPath, "does-not-exist-watcher-dir");
 
         // Act
-        _sut.Start(nonExistentPath);
+        sut.Start(nonExistentPath);
 
         // Assert
-        _sut.IsWatching.Should().BeFalse();
+        sut.IsWatching.Should().BeFalse();
     }
 
     [Test]
     public void Dispose_WhenCalled_ShouldStopWatching()
     {
         // Arrange
-        _sut.Start(_testDataPath);
-        _sut.IsWatching.Should().BeTrue("precondition: watcher should be active");
+        sut.Start(testDataPath);
+        sut.IsWatching.Should().BeTrue("precondition: watcher should be active");
 
         // Act
-        _sut.Dispose();
+        sut.Dispose();
 
         // Assert
-        _sut.IsWatching.Should().BeFalse();
+        sut.IsWatching.Should().BeFalse();
     }
 }

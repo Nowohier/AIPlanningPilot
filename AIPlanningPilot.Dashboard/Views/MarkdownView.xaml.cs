@@ -1,9 +1,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using AIPlanningPilot.Dashboard.Services;
 using AIPlanningPilot.Dashboard.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace AIPlanningPilot.Dashboard.Views;
 
@@ -35,8 +33,12 @@ public partial class MarkdownView : UserControl
             return;
         }
 
-        var assetsDir = ((App)Application.Current).ServiceProvider.GetRequiredService<IMarkdownRenderer>().AssetsDirectory;
-        await WebViewHelper.InitializeAsync(MarkdownWebView, assetsDir);
+        if (DataContext is not MarkdownViewerViewModel vm)
+        {
+            return;
+        }
+
+        await WebViewHelper.InitializeAsync(MarkdownWebView, vm.AssetsDirectory);
         isWebViewReady = true;
 
         UpdateWebViewContent();

@@ -17,3 +17,15 @@
 
 ## From Last Session
 Productive session focused on AI tooling integration.
+
+## Session Log
+
+### 2026-03-23
+- Completed AI tooling integration setup
+- Recorded ADR 005 with scope guard approach
+- Files: decisions/005, CLAUDE.md
+
+### 2026-03-22
+- Initial project setup and onboarding
+- Created planning documents and CONFIG.md
+- Files: main/CONFIG.md, main/STATE.md

@@ -18,10 +18,10 @@ public class MarkdownRendererService : IMarkdownRenderer
     /// </summary>
     private sealed record ThemeConfig(string Css, string HighlightCss, string BodyClass);
 
-    private static Dictionary<string, ThemeConfig>? themeMap;
-    private static string? assetsDirectory;
-    private static bool initialized;
-    private static readonly object InitLock = new();
+    private Dictionary<string, ThemeConfig>? themeMap;
+    private string? assetsDir;
+    private bool initialized;
+    private readonly object initLock = new();
 
     /// <inheritdoc />
     public string AssetsDirectory => GetAssetsDirectory();
@@ -41,10 +41,11 @@ public class MarkdownRendererService : IMarkdownRenderer
             .Build();
 
         EnsureInitialized();
+        AvailableThemes = [.. GetThemeMap().Keys];
     }
 
     /// <inheritdoc />
-    public string[] AvailableThemes { get; } = [.. GetThemeMap().Keys];
+    public string[] AvailableThemes { get; }
 
     /// <inheritdoc />
     public string SelectedThemeName
@@ -75,8 +76,8 @@ public class MarkdownRendererService : IMarkdownRenderer
     /// <inheritdoc />
     public string WrapHtmlFragment(string htmlFragment)
     {
-        var themeMap = GetThemeMap();
-        var theme = themeMap[selectedThemeName];
+        var themes = GetThemeMap();
+        var theme = themes[selectedThemeName];
         var bodyClass = string.IsNullOrEmpty(theme.BodyClass) ? "" : $" class=\"{theme.BodyClass}\"";
 
         return $$"""
@@ -112,22 +113,22 @@ public class MarkdownRendererService : IMarkdownRenderer
     /// Ensures embedded resources are extracted and CSS themes are loaded.
     /// Thread-safe and idempotent.
     /// </summary>
-    private static void EnsureInitialized()
+    private void EnsureInitialized()
     {
         if (initialized)
         {
             return;
         }
 
-        lock (InitLock)
+        lock (initLock)
         {
             if (initialized)
             {
                 return;
             }
 
-            assetsDirectory = Path.Combine(Path.GetTempPath(), "RestructuringDashboard", "assets");
-            Directory.CreateDirectory(assetsDirectory);
+            assetsDir = Path.Combine(Path.GetTempPath(), "RestructuringDashboard", "assets");
+            Directory.CreateDirectory(assetsDir);
 
             ExtractResourceToFile("highlight.min.js");
             ExtractResourceToFile("highlight-csharp.min.js");
@@ -154,7 +155,7 @@ public class MarkdownRendererService : IMarkdownRenderer
     /// <summary>
     /// Gets the theme map, ensuring initialization has occurred.
     /// </summary>
-    private static Dictionary<string, ThemeConfig> GetThemeMap()
+    private Dictionary<string, ThemeConfig> GetThemeMap()
     {
         EnsureInitialized();
         return themeMap!;
@@ -163,18 +164,18 @@ public class MarkdownRendererService : IMarkdownRenderer
     /// <summary>
     /// Gets the assets directory, ensuring initialization has occurred.
     /// </summary>
-    private static string GetAssetsDirectory()
+    private string GetAssetsDirectory()
     {
         EnsureInitialized();
-        return assetsDirectory!;
+        return assetsDir!;
     }
 
     /// <summary>
     /// Extracts an embedded resource to the assets temp directory.
     /// </summary>
-    private static void ExtractResourceToFile(string fileName)
+    private void ExtractResourceToFile(string fileName)
     {
-        var targetPath = Path.Combine(assetsDirectory!, fileName);
+        var targetPath = Path.Combine(assetsDir!, fileName);
         if (File.Exists(targetPath))
         {
             return;

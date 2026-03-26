@@ -1,9 +1,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using AIPlanningPilot.Dashboard.Services;
 using AIPlanningPilot.Dashboard.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace AIPlanningPilot.Dashboard.Views;
 
@@ -39,8 +37,12 @@ public partial class DecisionTrackerView : UserControl
             return;
         }
 
-        var assetsDir = ((App)Application.Current).ServiceProvider.GetRequiredService<IMarkdownRenderer>().AssetsDirectory;
-        await WebViewHelper.InitializeAsync(DecisionWebView, assetsDir);
+        if (DataContext is not DecisionTrackerViewModel viewModel)
+        {
+            return;
+        }
+
+        await WebViewHelper.InitializeAsync(DecisionWebView, viewModel.AssetsDirectory);
         isWebViewReady = true;
 
         UpdateWebViewContent();

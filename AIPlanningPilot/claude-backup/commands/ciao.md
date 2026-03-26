@@ -22,6 +22,7 @@ Before asking the developer, scan the current conversation and extract:
 3. **Patterns & insights**: Technical patterns discovered, confirmed, or rejected
 4. **Unresolved questions**: Questions raised but not answered; topics deferred
 5. **Technical findings**: Bugs, performance insights, dependency issues, build/test results
+6. **Session log entry**: Compose a compact 3-5 bullet summary of what was accomplished this session, plus a "Files:" line listing the key files touched. This will become the `### YYYY-MM-DD` entry in the Session Log.
 
 Present this under **"Session summary (auto-extracted)"**, then ask:
 
@@ -66,12 +67,16 @@ After the developer confirms, apply changes:
 
 3. **Handover file** (`${PLANNING_REPO}\handovers\handover-{name}.md`):
    - Derive filename from Developer field (e.g., "Nowo" -> `handover-nowo.md`)
-   - Replace content with a structured handover:
-     - **For Next Session**: Concrete action items — what to continue, what to start
+   - **Before overwriting**, read the existing file and extract the entire `## Session Log` section (everything from `## Session Log` to end of file). If the section doesn't exist yet, start with an empty session log.
+   - Write the file with this structure:
+     - `# Handover Notes -- {Name}`
+     - `> Last updated: YYYY-MM-DD` (today's date)
+     - **For Next Session**: Concrete action items -- what to continue, what to start
      - **Decisions & Findings**: Key decisions (formal or informal), technical discoveries
      - **Open Threads**: Unresolved questions, deferred topics, things to revisit
      - **From Last Session**: 2-3 sentences giving future-Claude enough context to resume
-   - Set "Last updated" to today's date
+     - **Session Log**: The preserved `## Session Log` section, with a **new** `### YYYY-MM-DD` entry prepended at the top (newest first). The new entry contains the compact 3-5 bullet summary from Step 2 item 6.
+   - If today's date already has an entry in the Session Log (e.g., running /ciao twice in one day), **replace** the existing entry for that date rather than creating a duplicate.
 
 ## Step 5 — Present summary
 

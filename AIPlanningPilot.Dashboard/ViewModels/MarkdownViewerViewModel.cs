@@ -25,6 +25,11 @@ public partial class MarkdownViewerViewModel : ObservableObject
     private string? currentFilePath;
 
     /// <summary>
+    /// Gets the directory path where WebView2 assets are extracted.
+    /// </summary>
+    public string AssetsDirectory => markdownRenderer.AssetsDirectory;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="MarkdownViewerViewModel"/> class.
     /// </summary>
     /// <param name="fileSystemService">Service for reading files from disk.</param>

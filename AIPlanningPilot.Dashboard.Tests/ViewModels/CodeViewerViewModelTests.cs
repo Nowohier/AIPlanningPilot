@@ -11,18 +11,18 @@ namespace AIPlanningPilot.Dashboard.Tests.ViewModels;
 [TestFixture]
 public class CodeViewerViewModelTests
 {
-    private Mock<IFileSystemService> _mockFileSystemService = null!;
+    private Mock<IFileSystemService> mockFileSystemService = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _mockFileSystemService = new Mock<IFileSystemService>(MockBehavior.Strict);
+        mockFileSystemService = new Mock<IFileSystemService>(MockBehavior.Strict);
     }
 
     [TearDown]
     public void TearDown()
     {
-        _mockFileSystemService.VerifyAll();
+        mockFileSystemService.VerifyAll();
     }
 
     [Test]
@@ -30,9 +30,9 @@ public class CodeViewerViewModelTests
     {
         // Arrange
         var filePath = @"C:\scripts\sync-claude.mjs";
-        _mockFileSystemService.Setup(fs => fs.ReadAllText(filePath)).Returns("export function sync() {}");
+        mockFileSystemService.Setup(fs => fs.ReadAllText(filePath)).Returns("export function sync() {}");
 
-        var viewModel = new CodeViewerViewModel(_mockFileSystemService.Object);
+        var viewModel = new CodeViewerViewModel(mockFileSystemService.Object);
 
         // Act
         viewModel.LoadFile(filePath);
@@ -48,9 +48,9 @@ public class CodeViewerViewModelTests
     {
         // Arrange
         var filePath = @"C:\settings.json";
-        _mockFileSystemService.Setup(fs => fs.ReadAllText(filePath)).Returns("{}");
+        mockFileSystemService.Setup(fs => fs.ReadAllText(filePath)).Returns("{}");
 
-        var viewModel = new CodeViewerViewModel(_mockFileSystemService.Object);
+        var viewModel = new CodeViewerViewModel(mockFileSystemService.Object);
 
         // Act
         viewModel.LoadFile(filePath);
@@ -64,9 +64,9 @@ public class CodeViewerViewModelTests
     {
         // Arrange
         var filePath = @"C:\tests\run-tests.sh";
-        _mockFileSystemService.Setup(fs => fs.ReadAllText(filePath)).Returns("#!/bin/bash");
+        mockFileSystemService.Setup(fs => fs.ReadAllText(filePath)).Returns("#!/bin/bash");
 
-        var viewModel = new CodeViewerViewModel(_mockFileSystemService.Object);
+        var viewModel = new CodeViewerViewModel(mockFileSystemService.Object);
 
         // Act
         viewModel.LoadFile(filePath);
@@ -81,9 +81,9 @@ public class CodeViewerViewModelTests
     {
         // Arrange
         var filePath = @"C:\project.csproj";
-        _mockFileSystemService.Setup(fs => fs.ReadAllText(filePath)).Returns("<Project />");
+        mockFileSystemService.Setup(fs => fs.ReadAllText(filePath)).Returns("<Project />");
 
-        var viewModel = new CodeViewerViewModel(_mockFileSystemService.Object);
+        var viewModel = new CodeViewerViewModel(mockFileSystemService.Object);
 
         // Act
         viewModel.LoadFile(filePath);
@@ -97,9 +97,9 @@ public class CodeViewerViewModelTests
     {
         // Arrange
         var filePath = @"C:\Program.cs";
-        _mockFileSystemService.Setup(fs => fs.ReadAllText(filePath)).Returns("class Foo {}");
+        mockFileSystemService.Setup(fs => fs.ReadAllText(filePath)).Returns("class Foo {}");
 
-        var viewModel = new CodeViewerViewModel(_mockFileSystemService.Object);
+        var viewModel = new CodeViewerViewModel(mockFileSystemService.Object);
 
         // Act
         viewModel.LoadFile(filePath);
@@ -113,9 +113,9 @@ public class CodeViewerViewModelTests
     {
         // Arrange
         var filePath = @"C:\file.txt";
-        _mockFileSystemService.Setup(fs => fs.ReadAllText(filePath)).Returns("plain text");
+        mockFileSystemService.Setup(fs => fs.ReadAllText(filePath)).Returns("plain text");
 
-        var viewModel = new CodeViewerViewModel(_mockFileSystemService.Object);
+        var viewModel = new CodeViewerViewModel(mockFileSystemService.Object);
 
         // Act
         viewModel.LoadFile(filePath);

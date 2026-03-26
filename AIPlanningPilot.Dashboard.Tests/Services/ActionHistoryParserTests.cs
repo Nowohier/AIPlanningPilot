@@ -10,15 +10,15 @@ namespace AIPlanningPilot.Dashboard.Tests.Services;
 [TestFixture]
 public class ActionHistoryParserTests
 {
-    private Mock<IFileSystemService> _mockFs = null!;
+    private Mock<IFileSystemService> mockFs = null!;
     private ActionHistoryParser _parser = null!;
     private string _sampleContent = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _mockFs = new Mock<IFileSystemService>(MockBehavior.Strict);
-        _parser = new ActionHistoryParser(_mockFs.Object);
+        mockFs = new Mock<IFileSystemService>(MockBehavior.Strict);
+        _parser = new ActionHistoryParser(mockFs.Object);
         _sampleContent = File.ReadAllText(
             Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "sample-completed-actions.md"));
     }
@@ -26,14 +26,14 @@ public class ActionHistoryParserTests
     [TearDown]
     public void TearDown()
     {
-        _mockFs.VerifyAll();
+        mockFs.VerifyAll();
     }
 
     [Test]
     public void Parse_WhenActionsPresent_ShouldParseAllRows()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.ReadAllText("actions.md")).Returns(_sampleContent);
+        mockFs.Setup(fs => fs.ReadAllText("actions.md")).Returns(_sampleContent);
 
         // Act
         var result = _parser.Parse("actions.md");
@@ -46,7 +46,7 @@ public class ActionHistoryParserTests
     public void Parse_WhenActionsPresent_ShouldParseFieldsCorrectly()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.ReadAllText("actions.md")).Returns(_sampleContent);
+        mockFs.Setup(fs => fs.ReadAllText("actions.md")).Returns(_sampleContent);
 
         // Act
         var result = _parser.Parse("actions.md");
@@ -63,7 +63,7 @@ public class ActionHistoryParserTests
     public void Parse_WhenActionsPresent_ShouldParseMultipleOwners()
     {
         // Arrange
-        _mockFs.Setup(fs => fs.ReadAllText("actions.md")).Returns(_sampleContent);
+        mockFs.Setup(fs => fs.ReadAllText("actions.md")).Returns(_sampleContent);
 
         // Act
         var result = _parser.Parse("actions.md");
@@ -84,7 +84,7 @@ public class ActionHistoryParserTests
             |---|--------|-------|-----------|-------|
             | 7 | Fallback action | Alice | 2026-03-10 | Via first table |
             """;
-        _mockFs.Setup(fs => fs.ReadAllText("actions.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("actions.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("actions.md");
@@ -109,7 +109,7 @@ public class ActionHistoryParserTests
             | 2 | Short row | Bob |
             | 3 | Another valid | Eve | 2026-03-05 | Done |
             """;
-        _mockFs.Setup(fs => fs.ReadAllText("actions.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("actions.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("actions.md");
@@ -131,7 +131,7 @@ public class ActionHistoryParserTests
             |---|--------|-------|-----------|-------|
             | abc | Non-numeric action | Chris | 2026-03-04 | Test |
             """;
-        _mockFs.Setup(fs => fs.ReadAllText("actions.md")).Returns(content);
+        mockFs.Setup(fs => fs.ReadAllText("actions.md")).Returns(content);
 
         // Act
         var result = _parser.Parse("actions.md");

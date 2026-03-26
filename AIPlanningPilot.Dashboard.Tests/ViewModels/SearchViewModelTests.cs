@@ -13,9 +13,9 @@ namespace AIPlanningPilot.Dashboard.Tests.ViewModels;
 [Apartment(ApartmentState.STA)]
 public class SearchViewModelTests
 {
-    private Mock<ISearchService> _mockSearchService = null!;
-    private Mock<IConfigurationService> _mockConfig = null!;
-    private Mock<INavigationService> _mockNavigation = null!;
+    private Mock<ISearchService> mockSearchService = null!;
+    private Mock<IConfigurationService> mockConfig = null!;
+    private Mock<INavigationService> mockNavigation = null!;
 
     private SearchViewModel? _sut;
 
@@ -25,9 +25,9 @@ public class SearchViewModelTests
     [SetUp]
     public void SetUp()
     {
-        _mockSearchService = new Mock<ISearchService>(MockBehavior.Strict);
-        _mockConfig = new Mock<IConfigurationService>(MockBehavior.Strict);
-        _mockNavigation = new Mock<INavigationService>(MockBehavior.Strict);
+        mockSearchService = new Mock<ISearchService>(MockBehavior.Strict);
+        mockConfig = new Mock<IConfigurationService>(MockBehavior.Strict);
+        mockNavigation = new Mock<INavigationService>(MockBehavior.Strict);
     }
 
     /// <summary>
@@ -37,9 +37,9 @@ public class SearchViewModelTests
     public void TearDown()
     {
         _sut?.Dispose();
-        _mockSearchService.VerifyAll();
-        _mockConfig.VerifyAll();
-        _mockNavigation.VerifyAll();
+        mockSearchService.VerifyAll();
+        mockConfig.VerifyAll();
+        mockNavigation.VerifyAll();
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ public class SearchViewModelTests
     public void Query_WhenSetToEmpty_ShouldClearResultsAndHideOverlay()
     {
         // Arrange
-        _sut = new SearchViewModel(_mockSearchService.Object, _mockConfig.Object, _mockNavigation.Object);
+        _sut = new SearchViewModel(mockSearchService.Object, mockConfig.Object, mockNavigation.Object);
 
         // Act
         _sut.Query = "";
@@ -68,15 +68,15 @@ public class SearchViewModelTests
     {
         // Arrange
         var result = new SearchResult { FilePath = @"C:\root\main\STATE.md" };
-        _mockNavigation.Setup(n => n.NavigateToFile(@"C:\root\main\STATE.md"));
+        mockNavigation.Setup(n => n.NavigateToFile(@"C:\root\main\STATE.md"));
 
-        _sut = new SearchViewModel(_mockSearchService.Object, _mockConfig.Object, _mockNavigation.Object);
+        _sut = new SearchViewModel(mockSearchService.Object, mockConfig.Object, mockNavigation.Object);
 
         // Act
         _sut.NavigateToResult(result);
 
         // Assert
-        _mockNavigation.Verify(n => n.NavigateToFile(@"C:\root\main\STATE.md"), Times.Once);
+        mockNavigation.Verify(n => n.NavigateToFile(@"C:\root\main\STATE.md"), Times.Once);
     }
 
     /// <summary>
@@ -87,9 +87,9 @@ public class SearchViewModelTests
     {
         // Arrange
         var result = new SearchResult { FilePath = @"C:\root\main\STATE.md" };
-        _mockNavigation.Setup(n => n.NavigateToFile(It.IsAny<string>()));
+        mockNavigation.Setup(n => n.NavigateToFile(It.IsAny<string>()));
 
-        _sut = new SearchViewModel(_mockSearchService.Object, _mockConfig.Object, _mockNavigation.Object);
+        _sut = new SearchViewModel(mockSearchService.Object, mockConfig.Object, mockNavigation.Object);
         _sut.IsOverlayVisible = true;
 
         // Act
@@ -106,7 +106,7 @@ public class SearchViewModelTests
     public void NavigateToResult_WhenNull_ShouldNotThrow()
     {
         // Arrange
-        _sut = new SearchViewModel(_mockSearchService.Object, _mockConfig.Object, _mockNavigation.Object);
+        _sut = new SearchViewModel(mockSearchService.Object, mockConfig.Object, mockNavigation.Object);
 
         // Act
         var act = () => _sut.NavigateToResult(null);
@@ -122,7 +122,7 @@ public class SearchViewModelTests
     public void HideOverlay_WhenCalled_ShouldSetOverlayInvisible()
     {
         // Arrange
-        _sut = new SearchViewModel(_mockSearchService.Object, _mockConfig.Object, _mockNavigation.Object);
+        _sut = new SearchViewModel(mockSearchService.Object, mockConfig.Object, mockNavigation.Object);
         _sut.IsOverlayVisible = true;
 
         // Act
@@ -139,7 +139,7 @@ public class SearchViewModelTests
     public void OnSearchFieldGotFocus_WhenQueryExistsAndHasSearched_ShouldShowOverlay()
     {
         // Arrange
-        _sut = new SearchViewModel(_mockSearchService.Object, _mockConfig.Object, _mockNavigation.Object);
+        _sut = new SearchViewModel(mockSearchService.Object, mockConfig.Object, mockNavigation.Object);
 
         // Setting Query triggers OnQueryChanged which creates a debounce timer (no mock needed for sync test)
         _sut.Query = "test";
@@ -160,7 +160,7 @@ public class SearchViewModelTests
     public void OnSearchFieldGotFocus_WhenQueryIsEmpty_ShouldNotShowOverlay()
     {
         // Arrange
-        _sut = new SearchViewModel(_mockSearchService.Object, _mockConfig.Object, _mockNavigation.Object);
+        _sut = new SearchViewModel(mockSearchService.Object, mockConfig.Object, mockNavigation.Object);
         _sut.Query = "";
         _sut.IsOverlayVisible = false;
 
@@ -178,7 +178,7 @@ public class SearchViewModelTests
     public void Constructor_WhenNullSearchService_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new SearchViewModel(null!, _mockConfig.Object, _mockNavigation.Object);
+        var act = () => new SearchViewModel(null!, mockConfig.Object, mockNavigation.Object);
 
         // Assert
         act.Should().Throw<ArgumentNullException>().WithParameterName("searchService");
@@ -191,7 +191,7 @@ public class SearchViewModelTests
     public void Constructor_WhenNullConfigurationService_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new SearchViewModel(_mockSearchService.Object, null!, _mockNavigation.Object);
+        var act = () => new SearchViewModel(mockSearchService.Object, null!, mockNavigation.Object);
 
         // Assert
         act.Should().Throw<ArgumentNullException>().WithParameterName("configurationService");
@@ -204,7 +204,7 @@ public class SearchViewModelTests
     public void Constructor_WhenNullNavigationService_ShouldThrow()
     {
         // Arrange & Act
-        var act = () => new SearchViewModel(_mockSearchService.Object, _mockConfig.Object, null!);
+        var act = () => new SearchViewModel(mockSearchService.Object, mockConfig.Object, null!);
 
         // Assert
         act.Should().Throw<ArgumentNullException>().WithParameterName("navigationService");

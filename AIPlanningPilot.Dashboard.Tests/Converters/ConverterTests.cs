@@ -4,6 +4,7 @@ using System.Windows.Media;
 using FluentAssertions;
 using AIPlanningPilot.Dashboard.Converters;
 using AIPlanningPilot.Dashboard.Models;
+using AIPlanningPilot.Dashboard.Theme;
 
 namespace AIPlanningPilot.Dashboard.Tests.Converters;
 

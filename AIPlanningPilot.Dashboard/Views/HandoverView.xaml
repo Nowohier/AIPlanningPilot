@@ -127,6 +127,42 @@
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                 </HeaderedContentControl>
+
+                                <!-- SESSION LOG -->
+                                <HeaderedContentControl Style="{StaticResource App.Styles.CardControl}"
+                                                        Header="SESSION LOG" Margin="0,12,0,0">
+                                    <ItemsControl ItemsSource="{Binding SessionLog}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type models:SessionLogEntry}">
+                                                <StackPanel Margin="0,6,0,4">
+                                                    <!-- Date header -->
+                                                    <DockPanel Margin="0,0,0,4">
+                                                        <iconPacks:PackIconPhosphorIcons Kind="ClockCounterClockwise" Width="14" Height="14"
+                                                                                          DockPanel.Dock="Left"
+                                                                                          VerticalAlignment="Center" Margin="0,0,8,0"
+                                                                                          Foreground="{DynamicResource MahApps.Brushes.Accent}" />
+                                                        <TextBlock Text="{Binding Date}" FontWeight="SemiBold" FontSize="13"
+                                                                   Foreground="{DynamicResource MahApps.Brushes.Accent}" />
+                                                    </DockPanel>
+                                                    <!-- Bullet items -->
+                                                    <ItemsControl ItemsSource="{Binding Items}" Margin="22,0,0,0">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <DockPanel Margin="0,2">
+                                                                    <iconPacks:PackIconPhosphorIcons Kind="ArrowRight" Width="10" Height="10"
+                                                                                                      DockPanel.Dock="Left"
+                                                                                                      VerticalAlignment="Top" Margin="0,3,6,0"
+                                                                                                      Foreground="{DynamicResource MahApps.Brushes.Gray3}" />
+                                                                    <TextBlock Text="{Binding}" TextWrapping="Wrap" FontSize="12" />
+                                                                </DockPanel>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </HeaderedContentControl>
                             </StackPanel>
                         </ScrollViewer>
                     </DataTemplate>

@@ -85,21 +85,4 @@ public partial class FileTreeNodeViewModel : ObservableObject
         }
     }
 
-    /// <summary>
-    /// Gets the icon kind name for the file type, used to select the appropriate PhosphorIcon.
-    /// </summary>
-    public string IconKind => Model.IsDirectory
-        ? "FolderSimple"
-        : Model.Extension switch
-        {
-            ".md" => "FileText",
-            ".json" => "FileCss",
-            ".sh" => "Terminal",
-            ".bat" or ".cmd" => "Terminal",
-            ".js" or ".mjs" => "FileJs",
-            ".cs" => "FileCode",
-            ".xml" or ".xaml" => "FileXml",
-            ".drawio" => "Graph",
-            _ => "File"
-        };
 }

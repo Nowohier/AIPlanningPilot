@@ -42,6 +42,11 @@ public partial class DecisionTrackerViewModel : ObservableObject
     private string? errorMessage;
 
     /// <summary>
+    /// Gets the directory path where WebView2 assets are extracted.
+    /// </summary>
+    public string AssetsDirectory => markdownRenderer.AssetsDirectory;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="DecisionTrackerViewModel"/> class.
     /// </summary>
     /// <param name="configurationService">Service providing the restructuring root path.</param>
